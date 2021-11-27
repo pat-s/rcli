@@ -301,11 +301,10 @@ function rcli() {
   R_VERSION=$2
   arch=$(uname -m)
 
-  R3x="$(version_compare $R_VERSION 3.6.4)"
-
   if [[ $1 == "install" ]]; then
     # version_compare $R_VERSION 4.0.6
     arm_avail=$(version_compare $R_VERSION 4.0.6)
+    R3x="$(version_compare $R_VERSION 3.6.4)"
     install
     exit 0
 
