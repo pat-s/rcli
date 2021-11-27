@@ -97,6 +97,18 @@ EOF
 }
 
 function switch() {
+
+  if [[ $(uname) == "Linux" ]]; then
+
+    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+      exit 0
+    fi
+  fi
+
   # only branch specific switching is possible - we need to strip and write a warning
   if [[ ${#R_VERSION} == 5 ]]; then
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
@@ -115,6 +127,24 @@ function switch() {
 }
 
 function install() {
+
+  if [[ $(uname) == "Linux" ]]; then
+
+    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+
+      R_VERSION=4.0.5
+      codename=$(lsb_release -sr)
+      sudo apt-get -qq -y install gfortran gfortran-9 icu-devtools liblapack3 libpcre2-32-0 libpcre2-posix2 libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpcre2-dev libtcl8.6 libtk8.6 libblas3 libgfortran-9-dev libgfortran5 >/dev/null
+      wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
+      sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+      rm r-${R_VERSION}_1_amd64.deb
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+      exit 0
+    fi
+  fi
+
   if [[ $ARG_ARCH == "x86_64" ]]; then
     echo -e "Downloading x86_64 installer because \033[36m --arch x86_64 \033[0m was set."
   fi
