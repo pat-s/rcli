@@ -185,7 +185,7 @@ function list() {
 
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
-      echo -e "Installed R versions:"
+      echo -e "Installed R versions:\n"
 
       ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "[0-9][^/]*$"
 
@@ -301,11 +301,11 @@ function rcli() {
   R_VERSION=$2
   arch=$(uname -m)
 
-  # version_compare $R_VERSION 4.0.6
-  arm_avail=$(version_compare $R_VERSION 4.0.6)
   R3x="$(version_compare $R_VERSION 3.6.4)"
 
   if [[ $1 == "install" ]]; then
+    # version_compare $R_VERSION 4.0.6
+    arm_avail=$(version_compare $R_VERSION 4.0.6)
     install
     exit 0
 
