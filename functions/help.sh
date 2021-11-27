@@ -1,9 +1,7 @@
 showHelp() {
 	# `cat << EOF` This means that cat should stop reading when EOF is detected
 	cat <<EOF
-Usage:
-- rcli [-h] [-v] install <R version> [--arch ARCHITECTURE]
-- rcli [-h] [-v] switch  <R version> [--arch ARCHITECTURE]
+Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
 
 -h, --help       Display this help.
 
