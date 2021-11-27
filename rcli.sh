@@ -179,6 +179,22 @@ function install() {
   fi
 }
 
+function list() {
+
+  if [[ $(uname) == "Linux" ]]; then
+
+    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+
+      echo -e "Installed R versions:"
+
+      ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "[0-9][^/]*$"
+
+    fi
+
+  fi
+
+}
+
 # -*- tab-width: 2; encoding: utf-8 -*-
 
 ## @file version_compare
@@ -295,6 +311,10 @@ function rcli() {
 
   elif [[ $1 == "switch" ]]; then
     switch
+    exit 0
+
+  elif [[ $1 == "list" ]]; then
+    list
     exit 0
 
   else
