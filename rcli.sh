@@ -133,7 +133,7 @@ function install() {
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
       codename=$(lsb_release -sr)
-      sudo apt-get -qq -y install gfortran gfortran-9 icu-devtools liblapack3 libpcre2-32-0 libpcre2-posix2 libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpcre2-dev libtcl8.6 libtk8.6 libblas3 libgfortran-9-dev libgfortran5 >/dev/null
+      sudo apt-get -qq -y install gfortran gfortran-9 icu-devtools liblapack3 libpcre2-32-0 libpcre2-posix2 libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpcre2-dev libtcl8.6 libtk8.6 libblas3 libgfortran-9-dev libgfortran5 libpcre3-dev libpcre16-3 libpcrecpp0v5 libpcre32-3 >/dev/null
       wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
       sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
       rm r-${R_VERSION}_1_amd64.deb
