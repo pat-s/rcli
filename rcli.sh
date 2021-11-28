@@ -77,9 +77,13 @@ function parseArguments() {
 
 # Format argument.
 function formatArgument() {
-  ARGUMENT="${1^^}"           # Capitalize.
-  ARGUMENT="${ARGUMENT/--/}"  # Remove "--".
+  # ARGUMENT="${1^^}"           # Capitalize.
+  ARGUMENT="${1/--/}"         # Remove "--".
   ARGUMENT="${ARGUMENT//-/_}" # Replace "-" with "_".
+  # Explanation: because we need to work with bash v3.2, we cannot use the  ${1^^} syntax.
+  # According to https://stackoverflow.com/questions/33324767/easiest-way-to-capitalize-a-string-within-bash-3-2 there is no simple way in bash 3.2 to capitalize
+  # perl is installed by default on macOS, hence we use this way
+  ARGUMENT=$(perl -C -lne 'print uc' <<<"$ARGUMENT")
   echo "${ARGUMENT}"
 }
 
@@ -109,20 +113,23 @@ function switch() {
     fi
   fi
 
-  # only branch specific switching is possible - we need to strip and write a warning
-  if [[ ${#R_VERSION} == 5 ]]; then
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
-    echo -e "Only minor-version switching is possible, e.g. between versions 4.0 and 4.1.\nStripping the patch version from the supplied version '$R_VERSION' to '$R_CUT'.\nTo suppress this warning, omit the patch version."
-    ARG_1=$R_CUT
-  fi
+  R_CUT=$(echo $R_VERSION | cut -c 1-3)
 
   if [[ $ARG_ARCH == "x86_64" ]]; then
-    echo "-> Switching to x86_64 R installation because --arch x86_64 was set."
+    echo -e "→ Switching to \033[36m--arch x86_64\033[0m R installation because \033[36m--arch x86_64\033[0m was set."
   fi
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
-    ln -sfn $ARG_1-arm64 /Library/Frameworks/R.framework/Versions/Current
+    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
+    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
+    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
+    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
+    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
   else
-    ln -sfn $ARG_1 /Library/Frameworks/R.framework/Versions/Current
+    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
+    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
+    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
+    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
+    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
   fi
 }
 
@@ -145,36 +152,64 @@ function install() {
   fi
 
   if [[ $ARG_ARCH == "x86_64" ]]; then
-    echo -e "Downloading x86_64 installer because \033[36m --arch x86_64 \033[0m was set."
+    echo -e "→ Downloading x86_64 installer because \033[36m--arch x86_64\033[0m was set."
   fi
 
   if [[ $arm_avail != 1 && $ARG_ARCH != "x86_64" ]]; then
-    echo -e "No arm installer available for this R version. Downloading \033[36m x86_64 \033[0m version instead."
+    echo -e "→ No arm installer available for this R version. Downloading \033[36mx86_64\033[0m version instead."
   fi
 
   # this means the request R version was smaller than 3.6.3
   if [[ $R3x == -1 ]]; then
 
-    echo -e "→ Downloading \033[36m https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg \033[0m"
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
     curl -s https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
-    # this preserves the previous installation
-    sudo pkgutil --forget org.r-project.R.el-capitan.fw.pkg
-    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / -dumplog /Volumes/Server/Share/installer.log
+
+    sudo installer -pkg "/tmp/R-${R_VERSION}.pkg" -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION/Library/Frameworks
+    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION/Library/Frameworks 2>/dev/null
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    sudo rm -rf /Library/Frameworks/R.framework/Versions
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+
     rm /tmp/R-${R_VERSION}.pkg
 
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
-    echo -e "→ Downloading \033[36m https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg \033[0m"
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
+
     curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
-    # this preserves the previous installation
-    sudo pkgutil --forget org.R-project.arm64.R.fw.pkg
-    sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / -dumplog /Volumes/Server/Share/installer.log
+
+    sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION-arm64/Library/Frameworks
+    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION-arm64/Library/Frameworks 2>/dev/null
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    sudo rm -rf /Library/Frameworks/R.framework/Versions
+    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
+    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
+    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
+    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
+    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+
     rm /tmp/R-${R_VERSION}-arm64.pkg
   else
-    echo -e "→ Downloading \033[36m https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg \033[0m"
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
+
     curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
-    # this preserves the previous installation
-    sudo pkgutil --forget org.R-project.R.fw.pkg
-    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / -dumplog /Volumes/Server/Share/installer.log
+    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION/Library/Frameworks
+    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION/Library/Frameworks 2>/dev/null
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    sudo rm -rf /Library/Frameworks/R.framework/Versions
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
+    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+
     rm /tmp/R-${R_VERSION}.pkg
   fi
 }
@@ -187,10 +222,18 @@ function list() {
 
       echo -e "Installed R versions:\n"
 
-      ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "[0-9][^/]*$"
+      # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
+      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
 
     fi
 
+  elif [[ $(uname) == "Darwin" ]]; then
+
+    echo -e "Installed R versions:\n"
+
+    # FIXME: check if grep is installed by default on macos
+    # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
+    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
   fi
 
 }
@@ -302,13 +345,14 @@ function rcli() {
   arch=$(uname -m)
 
   if [[ $1 == "install" ]]; then
-    # version_compare $R_VERSION 4.0.6
     arm_avail=$(version_compare $R_VERSION 4.0.6)
     R3x="$(version_compare $R_VERSION 3.6.4)"
     install
     exit 0
 
   elif [[ $1 == "switch" ]]; then
+    arm_avail=$(version_compare $R_VERSION 4.0.6)
+    R3x="$(version_compare $R_VERSION 3.6.4)"
     switch
     exit 0
 
