@@ -106,6 +106,13 @@ function switch() {
 
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
+      exists=$(test -f /opt/R/$R_VERSION/bin/R && echo "true" || echo "false")
+
+      if [[ $exists == "false" ]]; then
+        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
+        exit 0
+      fi
+
       sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
       sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
@@ -115,15 +122,33 @@ function switch() {
 
   R_CUT=$(echo $R_VERSION | cut -c 1-3)
 
-  if [[ $ARG_ARCH == "x86_64" ]]; then
-    echo -e "→ Switching to \033[36m--arch x86_64\033[0m R installation because \033[36m--arch x86_64\033[0m was set."
-  fi
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
+
+    exists=$(test -f /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/R && echo "true" || echo "false")
+    if
+    echo -e "R $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
 
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
     sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions 2>/dev/null
     sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
   else
+
+    exists=$(test -f /opt/R/$R_VERSION/Library/Frameworks/R.framework/R && echo "true" || echo "false")
+    if [[ $ARG_ARCH == "x86_64" ]]; then
+
+      if [[ $exists == "false" ]]; then
+        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION --arch x86_64\033[0m."
+        exit 0
+      fi
+
+      echo -e "→ Switching to \033[36m--arch x86_64\033[0m R installation because \033[36m--arch x86_64\033[0m was set."
+    fi
+
+    if [[ $exists == "false" ]]; then
+        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
+        exit 0
+    fi
+
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
     sudo cp -fR /opt/R/$R_VERSION/* /Library/Frameworks/R.framework/Versions 2>/dev/null
     sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
