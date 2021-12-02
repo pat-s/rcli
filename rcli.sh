@@ -133,13 +133,14 @@ function switch() {
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
     sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions 2>/dev/null
     sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
+
   else
 
     exists=$(test -f /opt/R/$R_VERSION/Library/Frameworks/R.framework/R && echo "true" || echo "false")
     if [[ $ARG_ARCH == "x86_64" ]]; then
 
       if [[ $exists == "false" ]]; then
-        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION --arch x86_64\033[0m."
+        echo -e "R version $R_VERSION for x86_64 architecture does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION --arch x86_64\033[0m."
         exit 0
       fi
 
