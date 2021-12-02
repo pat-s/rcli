@@ -235,7 +235,7 @@ function list() {
 
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
-      echo -e "Installed R versions:\n"
+      echo -e "Installed R versions:"
 
       # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
       ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
