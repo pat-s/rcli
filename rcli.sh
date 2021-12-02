@@ -125,8 +125,10 @@ function switch() {
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     exists=$(test -f /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/R && echo "true" || echo "false")
-    if
-    echo -e "R $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
+    if [[ $exists == "false" ]]; then
+      echo -e "R $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
+      exit 0
+    fi
 
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
     sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions 2>/dev/null
@@ -145,8 +147,8 @@ function switch() {
     fi
 
     if [[ $exists == "false" ]]; then
-        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
-        exit 0
+      echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
+      exit 0
     fi
 
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
