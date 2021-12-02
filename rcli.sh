@@ -121,12 +121,12 @@ function switch() {
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-    sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions  2>/dev/null
-    sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/  2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions 2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
   else
     sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-    sudo cp -fR /opt/R/$R_VERSION/* /Library/Frameworks/R.framework/Versions  2>/dev/null
-    sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework  2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION/* /Library/Frameworks/R.framework/Versions 2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
   fi
 }
 
@@ -138,6 +138,7 @@ function install() {
 
       codename=$(lsb_release -sr)
       sudo apt-get -qq -y install gfortran gfortran-9 icu-devtools liblapack3 libpcre2-32-0 libpcre2-posix2 libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpcre2-dev libtcl8.6 libtk8.6 libblas3 libgfortran-9-dev libgfortran5 libpcre3-dev libpcre16-3 libpcrecpp0v5 libpcre32-3 >/dev/null
+      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
       wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
       sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
       rm r-${R_VERSION}_1_amd64.deb
