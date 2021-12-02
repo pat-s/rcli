@@ -119,17 +119,14 @@ function switch() {
     echo -e "→ Switching to \033[36m--arch x86_64\033[0m R installation because \033[36m--arch x86_64\033[0m was set."
   fi
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
-    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
-    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
-    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
-    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
-    sudo ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+    sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions  2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/  2>/dev/null
   else
-    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
-    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
-    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
-    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
-    sudo ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+    sudo cp -fR /opt/R/$R_VERSION/* /Library/Frameworks/R.framework/Versions  2>/dev/null
+    sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework  2>/dev/null
   fi
 }
 
@@ -165,16 +162,12 @@ function install() {
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
     curl -s https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
 
-    sudo installer -pkg "/tmp/R-${R_VERSION}.pkg" -target / >/dev/null
-    sudo mkdir -p /opt/R/$R_VERSION/Library/Frameworks
-    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION/Library/Frameworks 2>/dev/null
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo rm -rf /Library/Frameworks/R.framework/Versions
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION/
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
 
     rm /tmp/R-${R_VERSION}.pkg
 
@@ -183,32 +176,25 @@ function install() {
 
     curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
 
-    sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
-    sudo mkdir -p /opt/R/$R_VERSION-arm64/Library/Frameworks
-    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION-arm64/Library/Frameworks 2>/dev/null
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo rm -rf /Library/Frameworks/R.framework/Versions
-    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
-    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
-    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
-    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
-    ln -sfn /opt/R/$R_VERSION-arm64/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+    sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION-arm64/
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64 /opt/R/$R_VERSION-arm64/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION-arm64/ 2>/dev/null
 
     rm /tmp/R-${R_VERSION}-arm64.pkg
   else
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
 
     curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
-    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
-    sudo mkdir -p /opt/R/$R_VERSION/Library/Frameworks
-    sudo cp -fR /Library/Frameworks/R.framework /opt/R/$R_VERSION/Library/Frameworks 2>/dev/null
+
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo rm -rf /Library/Frameworks/R.framework/Versions
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources /Library/Frameworks/R.framework/Resources
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/PrivateHeaders /Library/Frameworks/R.framework/PrivateHeaders
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/lib /Library/Frameworks/R.framework/Libraries
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Headers /Library/Frameworks/R.framework/Headers
-    ln -sfn /opt/R/$R_VERSION/Library/Frameworks/R.framework/Resources/bin/R /Library/Frameworks/R.framework/R
+    sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
+    sudo mkdir -p /opt/R/$R_VERSION/
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
 
     rm /tmp/R-${R_VERSION}.pkg
   fi
