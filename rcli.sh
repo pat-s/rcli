@@ -244,7 +244,7 @@ function list() {
 
   elif [[ $(uname) == "Darwin" ]]; then
 
-    echo -e "Installed R versions:\n"
+    echo -e "Installed R versions:"
 
     # FIXME: check if grep is installed by default on macos
     # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
