@@ -46,6 +46,7 @@ jobs:
           command: |
             shc -f rcli.sh && \
             mv rcli.sh.x /usr/local/bin/rcli
+            chmod +x /usr/local/bin/rcli
 
       - run:
           name: "Install R"
@@ -70,6 +71,7 @@ jobs:
           command: |
             shc -f rcli.sh && \
             mv rcli.sh.x /usr/local/bin/rcli
+            chmod +x /usr/local/bin/rcli
 
       - run:
           name: "Install R"
@@ -94,6 +96,7 @@ jobs:
           command: |
             shc -f rcli.sh && \
             mv rcli.sh.x /usr/local/bin/rcli
+            chmod +x /usr/local/bin/rcli
 
       - run:
           name: "Install R"
