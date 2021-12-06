@@ -21,7 +21,6 @@ if [ -z "$BASH_VERSION" ]; then
   exec bash "$0" "$@"
 fi
 
-
 if [[ $1 == "" ]]; then
   showInfo() {
     # `cat << EOF` This means that cat should stop reading when EOF is detected
@@ -205,33 +204,30 @@ function install() {
 
     elif [[ $(lsb_release -si) == "Debian" ]]; then
 
-        codename=$(lsb_release -sr)
+      codename=$(lsb_release -sr)
 
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
-        wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
-        sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
-        rm r-${R_VERSION}_1_amd64.deb
-        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+      wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
+      sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+      rm r-${R_VERSION}_1_amd64.deb
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
-        exit 0
-
-    fi
+      exit 0
 
     elif [[ $(lsb_release -si) == "CentOS" ]]; then
 
-        codename=$(lsb_release -sr | cut -c 1)
+      codename=$(lsb_release -sr | cut -c 1)
 
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
-        wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
-        sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
-        rm r-${R_VERSION}_1.x86_64.rpm
-        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
+      wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
+      sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
+      rm r-${R_VERSION}_1.x86_64.rpm
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
-        exit 0
+      exit 0
 
-    fi
     else
 
       echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
