@@ -5,7 +5,7 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu:21:10
+      - image: ubuntu:21.10
     steps:
       - checkout
 
@@ -26,6 +26,7 @@ jobs:
       - run:
           name: "Install R"
           command: |
+            mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
             rcli install 4.1.2
             R -q -s -e "R.version.string" > /tmp/test-results/R-version
@@ -59,6 +60,7 @@ jobs:
       - run:
           name: "Install R"
           command: |
+            mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
             rcli install 4.1.2
             R -q -s -e "R.version.string" > /tmp/test-results/R-version
@@ -84,6 +86,7 @@ jobs:
       - run:
           name: "Install rcli"
           command: |
+            mkdir -p /tmp/test-results
             shc -f rcli.sh && \
             mv rcli.sh.x /usr/local/bin/rcli
             chmod +x /usr/local/bin/rcli
@@ -120,6 +123,7 @@ jobs:
       - run:
           name: "Install R"
           command: |
+            mkdir -p /tmp/test-results
             rcli install 4.1.2
             R -q -s -e "R.version.string"
 
@@ -135,7 +139,7 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel \
-              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common
+              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel
 
       - run:
           name: "Install rcli"
@@ -147,6 +151,7 @@ jobs:
       - run:
           name: "Install R"
           command: |
+            mkdir -p /tmp/test-results
             rcli install 4.1.2
             R -q -s -e "R.version.string"
 
