@@ -30,6 +30,7 @@ jobs:
             chmod +x /usr/local/bin/rcli
             rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
+            if [[ $(diff tests/ubuntu-21.10/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -69,6 +70,7 @@ jobs:
             R -q -s -e "R.version.string" >> /tmp/test-results/out
             rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
+            if [[ $(diff tests/ubuntu-20.04/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -106,6 +108,7 @@ jobs:
             R -q -s -e "R.version.string" >> /tmp/test-results/out
             rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
+            if [[ $(diff tests/centos8/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -141,6 +144,7 @@ jobs:
             R -q -s -e "R.version.string" >> /tmp/test-results/out
             rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
+            if [[ $(diff tests/centos7/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -173,6 +177,7 @@ jobs:
             mkdir -p /tmp/test-results
             rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
+            if [[ $(diff tests/fedora/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -181,7 +186,20 @@ jobs:
 workflows:
   test:
     jobs:
-      - ubuntu-21-10
       - ubuntu-20-04
       - centos8
+
+  # CRON job daily at 4 am in the morning
+  # - runs the "build" job on the master branch and builds package cache
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 4 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - ubuntu-21-10
       - fedora
+      - centos7

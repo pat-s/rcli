@@ -1,0 +1,4 @@
+[1] "R version 4.1.2 (2021-11-01)"
+→ Downloading [36mhttps://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-3.6.3_1_amd64.deb[0m
+[1] "R version 3.6.3 (2020-02-29)"
+[1] "R version 4.1.2 (2021-11-01)"

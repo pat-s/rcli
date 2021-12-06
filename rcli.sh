@@ -117,6 +117,7 @@ Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
 Available commands:
     install     Install an R version
     switch      Switch between installed R versions
+    list        List installed R versions
 
 EOF
   # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
@@ -126,22 +127,19 @@ function switch() {
 
   if [[ $(uname) == "Linux" ]]; then
 
-    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+    exists=$(test -f /opt/R/$R_VERSION/bin/R && echo "true" || echo "false")
 
-      exists=$(test -f /opt/R/$R_VERSION/bin/R && echo "true" || echo "false")
-
-      if [[ $exists == "false" ]]; then
-        echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
-        exit 0
-      fi
-
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
-
+    if [[ $exists == "false" ]]; then
+      echo -e "R version $R_VERSION does not seem to be installed. Please install it via \033[36mrcli install $R_VERSION\033[0m."
       exit 0
     fi
+
+    sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+    sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
+    sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+    sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
+
+    exit 0
   fi
 
   R_CUT=$(echo $R_VERSION | cut -c 1-3)
@@ -202,7 +200,7 @@ function install() {
         exit 0
       else
 
-      install_from_source
+        install_from_source
 
       fi
 
