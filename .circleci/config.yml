@@ -10,7 +10,20 @@ jobs:
           name: "Install apt deps"
           command: |
             apt update -y
-            apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils shc dialog
+            apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils \
+              shc dialog unzip zip lpr perl wget gfortran g++ xorg xorg-dev \
+              r-base-core libcurl4-openssl-dev file
+
+      - run:
+          name: "Install rcli"
+          command: |
+            shc -f rcli.sh && \
+            mv rcli.sh.x /usr/local/bin/rcli
+
+      - run:
+          name: "Install R"
+          command: |
+            rcli install 4.1.2
 
 workflows:
   test:
