@@ -1,4 +1,26 @@
-#!/bin/bash
+#!/bin/sh
+# rcli - simplified installation and switching between R versions
+# Copyright (C) 2021 - 2021 Patrick Schratz
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# shellcheck shell=bash
+# execute script with bash (shebang line is /bin/sh for portability)
+if [ -z "$BASH_VERSION" ]; then
+  exec bash "$0" "$@"
+fi
+
 
 if [[ $1 == "" ]]; then
   showInfo() {
@@ -9,6 +31,7 @@ Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
 Available commands:
     install     Install an R version
     switch      Switch between installed R versions
+    list        List installed R versions
 
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
@@ -114,7 +137,9 @@ function switch() {
       fi
 
       sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
       sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
 
       exit 0
     fi
@@ -164,26 +189,100 @@ function install() {
 
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
-      codename=$(lsb_release -sr)
+      if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" ]]; then
 
-      if [[ $codename == "focal" ]]; then
+        codename=$(lsb_release -sr)
 
-        sudo apt-get -qq -y install gfortran gfortran-9 icu-devtools liblapack3 libpcre2-32-0 libpcre2-posix2 libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpcre2-dev libtcl8.6 libtk8.6 libblas3 libgfortran-9-dev libgfortran5 libpcre3-dev libpcre16-3 libpcrecpp0v5 libpcre32-3 >/dev/null
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+        wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
+        sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+        rm r-${R_VERSION}_1_amd64.deb
+        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+        exit 0
       fi
-      if [[ $codename == "bionic" ]]; then
 
-        sudo apt-get -qq -y install libcurl4-openssl-dev libicu-dev libopenblas-base libpcre2-dev wget python-pip ruby ruby-dev >/dev/null
-      fi
+    elif [[ $(lsb_release -si) == "Debian" ]]; then
 
-      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
-      wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
-      sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
-      rm r-${R_VERSION}_1_amd64.deb
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+        codename=$(lsb_release -sr)
 
-      exit 0
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+        wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
+        sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+        rm r-${R_VERSION}_1_amd64.deb
+        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+        exit 0
+
     fi
+
+    elif [[ $(lsb_release -si) == "CentOS" ]]; then
+
+        codename=$(lsb_release -sr | cut -c 1)
+
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
+        wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
+        sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
+        rm r-${R_VERSION}_1.x86_64.rpm
+        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+        exit 0
+
+    fi
+    else
+
+      echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+
+      R_VERSION=4.1.1
+      R_BRANCH=$(echo $R_VERSION | cut -c 1)
+      codename=20.04
+      wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+
+      tar -xf R-${R_VERSION}.tar.gz
+
+      cd R-${R_VERSION}
+
+      ## Set compiler flags and configure options
+      R_PAPERSIZE=a4 \
+        R_BATCHSAVE="--no-save --no-restore" \
+        R_BROWSER=xdg-open \
+        PAGER=/usr/bin/pager \
+        PERL=/usr/bin/perl \
+        R_UNZIPCMD=/usr/bin/unzip \
+        R_ZIPCMD=/usr/bin/zip \
+        R_PRINTCMD=/usr/bin/lpr \
+        LIBnn=lib \
+        AWK=/usr/bin/awk \
+        CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
+        CXXFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
+        ./configure --enable-R-shlib \
+        --enable-memory-profiling \
+        --with-readline \
+        --with-blas \
+        --with-tcltk \
+        --disable-nls \
+        --with-recommended-packages \
+        --with-pcre1 \
+        --prefix=/opt/R/$R_VERSION/ \
+        >/dev/null
+
+      ## Build and install
+      nice make -s "-j$(nproc)"
+
+      sudo make -s install
+
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
+
+      rm R-${R_VERSION}.tar.gz
+
+    fi
+
   fi
 
   if [[ $ARG_ARCH == "x86_64" ]]; then
