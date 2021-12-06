@@ -3,6 +3,7 @@ jobs:
   ubuntu-21-10:
     environment:
       TZ: Europe/Zurich
+      DEBIAN_FRONTEND: noninteractive
     docker:
       - image: ubuntu
     steps:
@@ -32,6 +33,30 @@ jobs:
       TZ: Europe/Zurich
     docker:
       - image: centos:8
+    steps:
+      - checkout
+
+      - run:
+          name: "Install yum deps"
+          command: |
+            yum -y install wget redhat-lsb-core sudo openblas-devel shc R
+
+      - run:
+          name: "Install rcli"
+          command: |
+            shc -f rcli.sh && \
+            mv rcli.sh.x /usr/local/bin/rcli
+
+      - run:
+          name: "Install R"
+          command: |
+            rcli install 4.1.2
+
+  centos7:
+    environment:
+      TZ: Europe/Zurich
+    docker:
+      - image: centos:7
     steps:
       - checkout
 
