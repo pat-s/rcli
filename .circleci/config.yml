@@ -22,11 +22,13 @@ jobs:
           command: |
             shc -f rcli.sh && \
             mv rcli.sh.x /usr/local/bin/rcli
+            chmod +x /usr/local/bin/rcli
 
       - run:
           name: "Install R"
           command: |
             rcli install 4.1.2
+            R -q -s -e "R.version.string"
 
   centos8:
     environment:
@@ -39,6 +41,7 @@ jobs:
       - run:
           name: "Install yum deps"
           command: |
+            yum -y install epel-release
             yum -y install wget redhat-lsb-core sudo openblas-devel shc R
 
       - run:
@@ -52,6 +55,7 @@ jobs:
           name: "Install R"
           command: |
             rcli install 4.1.2
+            R -q -s -e "R.version.string"
 
   centos7:
     environment:
@@ -77,6 +81,7 @@ jobs:
           name: "Install R"
           command: |
             rcli install 4.1.2
+            R -q -s -e "R.version.string"
 
   fedora:
     environment:
