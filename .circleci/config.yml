@@ -29,10 +29,11 @@ jobs:
             mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
             rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/R-version
+            R -q -s -e "R.version.string" > /tmp/test-results/out
 
-      - store_test_results:
-          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results/out
+          destination: artifact-file
 
   ubuntu-20-04:
     environment:
@@ -63,10 +64,15 @@ jobs:
             mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
             rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/R-version
+            R -q -s -e "R.version.string" > /tmp/test-results/out
+            rcli install 3.6.3
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
+            rcli switch 4.1.2
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
 
-      - store_test_results:
-          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results/out
+          destination: artifact-file
 
   centos8:
     environment:
@@ -96,9 +102,14 @@ jobs:
           command: |
             rcli install 4.1.2
             R -q -s -e "R.version.string" > /tmp/test-results/out
+            rcli install 3.6.3
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
+            rcli switch 4.1.2
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
 
-      - store_test_results:
+      - store_artifacts:
           path: /tmp/test-results/out
+          destination: artifact-file
 
   centos7:
     environment:
@@ -125,7 +136,15 @@ jobs:
           command: |
             mkdir -p /tmp/test-results
             rcli install 4.1.2
-            R -q -s -e "R.version.string"
+            R -q -s -e "R.version.string" > /tmp/test-results/out
+            rcli install 3.6.3
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
+            rcli switch 4.1.2
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
+
+      - store_artifacts:
+          path: /tmp/test-results/out
+          destination: artifact-file
 
   fedora:
     environment:
@@ -153,7 +172,11 @@ jobs:
           command: |
             mkdir -p /tmp/test-results
             rcli install 4.1.2
-            R -q -s -e "R.version.string"
+            R -q -s -e "R.version.string" > /tmp/test-results/out
+
+      - store_artifacts:
+          path: /tmp/test-results/out
+          destination: artifact-file
 
 workflows:
   test:

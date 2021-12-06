@@ -459,6 +459,7 @@ function install_from_source() {
   sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
   sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
 
+  cd ../
   rm R-${R_VERSION}.tar.gz
 
   exit 0
