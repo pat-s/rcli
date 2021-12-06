@@ -222,7 +222,7 @@ function install() {
       echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
       wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
       sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
-      rm r-${R_VERSION}_1.x86_64.rpm
+      rm R-${R_VERSION}_1.x86_64.rpm
       sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
       sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
