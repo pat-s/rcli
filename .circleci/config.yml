@@ -28,8 +28,8 @@ jobs:
           command: |
             mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
-            rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/out
+            rcli install 4.1.2 >> /tmp/test-results/out
+            R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -63,11 +63,11 @@ jobs:
           command: |
             mkdir -p /tmp/test-results
             chmod +x /usr/local/bin/rcli
-            rcli install 4.1.2
+            rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3
+            rcli install 3.6.3 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2
+            rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
 
       - store_artifacts:
@@ -100,11 +100,11 @@ jobs:
       - run:
           name: "Install R"
           command: |
-            rcli install 4.1.2
+            rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3
+            rcli install 3.6.3 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2
+            rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
 
       - store_artifacts:
@@ -135,11 +135,11 @@ jobs:
           name: "Install R"
           command: |
             mkdir -p /tmp/test-results
-            rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3
+            rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2
+            rcli install 3.6.3 >> /tmp/test-results/out
+            R -q -s -e "R.version.string" >> /tmp/test-results/out
+            rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
 
       - store_artifacts:
@@ -171,8 +171,8 @@ jobs:
           name: "Install R"
           command: |
             mkdir -p /tmp/test-results
-            rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/out
+            rcli install 4.1.2 >> /tmp/test-results/out
+            R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
 
       - store_artifacts:
           path: /tmp/test-results/out
