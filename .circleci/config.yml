@@ -46,7 +46,8 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install epel-release yum-utils
-            yum -y install wget redhat-lsb-core sudo openblas shc R
+            yum -y config-manager --set-enabled powertools
+            yum -y install wget redhat-lsb-core sudo openblas shc R texinfo-tex openblas-devel
 
       - run:
           name: "Install rcli"
@@ -99,7 +100,7 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel \
-              xorg-x11-server-devel
+              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common
 
       - run:
           name: "Install rcli"

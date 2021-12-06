@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # rcli - simplified installation and switching between R versions
 # Copyright (C) 2021 - 2021 Patrick Schratz
 
@@ -276,6 +276,8 @@ function install() {
       sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
 
       rm R-${R_VERSION}.tar.gz
+
+      exit 0
 
     fi
 
