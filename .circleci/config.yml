@@ -12,7 +12,7 @@ jobs:
             apt update -y
             apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils \
               shc dialog unzip zip lpr perl wget gfortran g++ xorg xorg-dev \
-              r-base-core libcurl4-openssl-dev file
+              r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
           name: "Install rcli"
