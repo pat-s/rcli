@@ -11,3 +11,8 @@ jobs:
           command: |
             apt update -y
             apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils shc dialog
+
+workflows:
+  test:
+    jobs:
+      - ubuntu-21-10
