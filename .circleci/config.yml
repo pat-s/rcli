@@ -108,7 +108,7 @@ jobs:
             R -q -s -e "R.version.string" >> /tmp/test-results/out
             rcli switch 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/centos8/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+            if [[ $(diff tests/centos8/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else diff --unified tests/centos8/test-out.txt /tmp/test-results/out && exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -177,7 +177,7 @@ jobs:
             mkdir -p /tmp/test-results
             rcli install 4.1.2 >> /tmp/test-results/out
             R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
-            if [[ $(diff tests/fedora/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+            if [[ $(diff tests/fedora/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else diff --unified tests/fedora/test-out.txt /tmp/test-results/out && exit 1 ; fi
 
       - store_artifacts:
           path: /tmp/test-results/out
