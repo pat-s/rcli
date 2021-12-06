@@ -95,10 +95,10 @@ jobs:
           name: "Install R"
           command: |
             rcli install 4.1.2
-            R -q -s -e "R.version.string" > /tmp/test-results/R-version
+            R -q -s -e "R.version.string" > /tmp/test-results/out
 
       - store_test_results:
-          path: /tmp/test-results
+          path: /tmp/test-results/out
 
   centos7:
     environment:
@@ -139,7 +139,7 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel \
-              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel
+              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel libcurl-devel
 
       - run:
           name: "Install rcli"

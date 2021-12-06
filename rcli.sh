@@ -200,9 +200,16 @@ function install() {
         sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
         exit 0
+      else
+
+      install_from_source
+
       fi
 
-    elif [[ $(lsb_release -si) == "Debian" ]]; then
+    elif
+
+      [[ $(lsb_release -si) == "Debian" ]]
+    then
 
       codename=$(lsb_release -sr)
 
@@ -222,7 +229,7 @@ function install() {
       echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
       wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
       sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
-      rm R-${R_VERSION}_1.x86_64.rpm
+      rm R-${R_VERSION}-1-1.x86_64.rpm
       sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
       sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
@@ -230,54 +237,7 @@ function install() {
 
     else
 
-      echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
-
-      R_VERSION=4.1.1
-      R_BRANCH=$(echo $R_VERSION | cut -c 1)
-      codename=20.04
-      wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
-
-      tar -xf R-${R_VERSION}.tar.gz
-
-      cd R-${R_VERSION}
-
-      ## Set compiler flags and configure options
-      R_PAPERSIZE=a4 \
-        R_BATCHSAVE="--no-save --no-restore" \
-        R_BROWSER=xdg-open \
-        PAGER=/usr/bin/pager \
-        PERL=/usr/bin/perl \
-        R_UNZIPCMD=/usr/bin/unzip \
-        R_ZIPCMD=/usr/bin/zip \
-        R_PRINTCMD=/usr/bin/lpr \
-        LIBnn=lib \
-        AWK=/usr/bin/awk \
-        CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
-        CXXFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
-        ./configure --enable-R-shlib \
-        --enable-memory-profiling \
-        --with-readline \
-        --with-blas \
-        --with-tcltk \
-        --disable-nls \
-        --with-recommended-packages \
-        --with-pcre1 \
-        --prefix=/opt/R/$R_VERSION/ \
-        >/dev/null
-
-      ## Build and install
-      nice make -s "-j$(nproc)"
-
-      sudo make -s install
-
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
-
-      rm R-${R_VERSION}.tar.gz
-
-      exit 0
+      install_from_source
 
     fi
 
@@ -452,6 +412,56 @@ function version_compare_convert() {
 
   # Combine the version parts and pad everything with zeros, except major.
   printf "%s%04d%04d%04d%s\n" "${major}" "${minor}" "${patch}" "${build}" "${prerelease}"
+}
+
+function install_from_source() {
+
+  echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+
+  R_BRANCH=$(echo $R_VERSION | cut -c 1)
+  wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+
+  tar -xf R-${R_VERSION}.tar.gz
+
+  cd R-${R_VERSION}
+
+  ## Set compiler flags and configure options
+  R_PAPERSIZE=a4 \
+    R_BATCHSAVE="--no-save --no-restore" \
+    R_BROWSER=xdg-open \
+    PAGER=/usr/bin/pager \
+    PERL=/usr/bin/perl \
+    R_UNZIPCMD=/usr/bin/unzip \
+    R_ZIPCMD=/usr/bin/zip \
+    R_PRINTCMD=/usr/bin/lpr \
+    LIBnn=lib \
+    AWK=/usr/bin/awk \
+    CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
+    CXXFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g" \
+    ./configure --enable-R-shlib \
+    --enable-memory-profiling \
+    --with-readline \
+    --with-blas \
+    --with-tcltk \
+    --disable-nls \
+    --with-recommended-packages \
+    --with-pcre1 \
+    --prefix=/opt/R/$R_VERSION/ \
+    >/dev/null
+
+  ## Build and install
+  nice make -s "-j$(nproc)"
+
+  sudo make -s install
+
+  sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+  sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
+  sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+  sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
+
+  rm R-${R_VERSION}.tar.gz
+
+  exit 0
 }
 
 function rcli() {
