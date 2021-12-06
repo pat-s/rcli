@@ -1,5 +1,6 @@
 # rcli
 
+[![CircleCI](https://circleci.com/gh/pat-s/rcli/tree/main.svg?style=svg)](https://circleci.com/gh/pat-s/rcli/tree/main)
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/patrickschratz)
 
 `rcli` is a tool for simplified installing and switching between R versions.
