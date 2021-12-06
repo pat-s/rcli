@@ -30,6 +30,10 @@ jobs:
             rcli install 4.1.2
             R -q -s -e "R.version.string"
 
+      - store_test_results:
+          path: test-results
+
+
   centos8:
     environment:
       TZ: Europe/Zurich
@@ -42,6 +46,7 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install epel-release
+            yum config-manager --enable PowerTools
             yum -y install wget redhat-lsb-core sudo openblas-devel shc R
 
       - run:
@@ -94,7 +99,7 @@ jobs:
       - run:
           name: "Install yum deps"
           command: |
-            yum -y install wget redhat-lsb-core sudo openblas-devel shc R
+            yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel sudo
 
       - run:
           name: "Install rcli"
@@ -107,6 +112,7 @@ jobs:
           name: "Install R"
           command: |
             rcli install 4.1.2
+            R -q -s -e "R.version.string"
 
 workflows:
   test:
