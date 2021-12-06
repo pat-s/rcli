@@ -107,3 +107,5 @@ workflows:
   test:
     jobs:
       - ubuntu-21-10
+      - centos8
+      - fedora
