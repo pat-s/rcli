@@ -154,6 +154,6 @@ workflows:
   test:
     jobs:
       - ubuntu-21-10
-      - ubuntu-20.04
+      - ubuntu-20-04
       - centos8
       - fedora
