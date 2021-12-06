@@ -5,7 +5,7 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu
+      - image: ubuntu:latest
     steps:
       - checkout
 
@@ -46,8 +46,7 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install epel-release yum-utils
-            yum config-manager --enable PowerTools
-            yum -y install wget redhat-lsb-core sudo openblas-devel shc R
+            yum -y install wget redhat-lsb-core sudo openblas shc R
 
       - run:
           name: "Install rcli"
@@ -99,8 +98,8 @@ jobs:
       - run:
           name: "Install yum deps"
           command: |
-            yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel sudo \
-              xorg-x11-devel
+            yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel \
+              xorg-x11-server-devel
 
       - run:
           name: "Install rcli"

@@ -17,9 +17,9 @@
 
 # shellcheck shell=bash
 # execute script with bash (shebang line is /bin/sh for portability)
-if [ -z "$BASH_VERSION" ]; then
-  exec bash "$0" "$@"
-fi
+# if [ -z "$BASH_VERSION" ]; then
+#   exec bash "$0" "$@"
+# fi
 
 if [[ $1 == "" ]]; then
   showInfo() {
