@@ -1,11 +1,14 @@
 # rcli
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/patrickschratz)
+
 `rcli` is a tool for simplified installing and switching between R versions.
 
 The following platforms/distributions are currently supported:
 
 - macOS - `x86_64` and `arm64`
 - Ubuntu `x86_64`
+- Fedora `x86_64`
 
 ## Installation
 
@@ -33,7 +36,7 @@ chmod a+x /usr/local/bin/rcli
 <summary>What is the oldest R version that can be installed</summary>
 
 For macOS: R 3.4.0
-For Ubuntu:
+For Ubuntu: R 3.0.0
 
 </details>
 
@@ -41,6 +44,23 @@ For Ubuntu:
 <summary>How does `rcli` relate to `rswitch`?</summary>
 
 `rcli` was inspired by `rswitch` but is otherwise not affiliated with `rswitch` in any way.
+
+</details>
+
+<details>
+<summary>Do I need to install every R version from source on Linux?</summary>
+
+No. `rcli` makes use of the R binaries from [rstudio/r-builds](https://github.com/rstudio/r-builds) for the respective underlying distribution.
+
+</details>
+
+</details>
+
+<details>
+<summary>Does `rcli` install all dependencies needed on Linux to run R?</summary>
+
+No, `rcli` assumes that all runtime dependencies are installed.
+The easiest way to do so is to install the respective distribution packages first (e.g. `r-base-core` on Ubuntu or `R` on Fedora) so that all dependencies are installed and then invoke `rcli` to install custom versions.
 
 </details>
 
@@ -92,3 +112,13 @@ No, `rcli` enables you to install and switch (between) any patch version of an R
 </details>
 
 ### Ubuntu
+
+
+</details>
+
+<details>
+<summary>Does `rcli` support non-LTS releases?</summary>
+
+No, currently only LTS releases are supported.
+
+</details>
