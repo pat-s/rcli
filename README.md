@@ -9,6 +9,7 @@ The following platforms/distributions are currently supported:
 
 - macOS - `x86_64` and `arm64`
 - Ubuntu `x86_64`
+- CentOS 7 and CentOS 8 `x86_64`
 - Fedora `x86_64`
 
 ## Installation
@@ -22,14 +23,27 @@ brew tap pat-s/rcli
 brew install rcli
 ```
 
-### Ubuntu
+### Linux
 
-`rcli` can be installed by downloading the binary from the GitHub release:
+`rcli` can be installed by downloading the latest version of the binary from GitHub:
 
 ```sh
 curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/raw/main/rcli
 chmod a+x /usr/local/bin/rcli
 ```
+
+(If you want to play it more safe, I recommend to download the latest release instead.)
+
+`rcli` requires the following libraries to be installed:
+
+- wget
+- sudo
+- dpkg (Ubuntu)
+- lsb_release
+- awk
+- grep
+
+`rcli` might eventually be added to the official repositories of the respective distributions.
 
 ## Usage
 
