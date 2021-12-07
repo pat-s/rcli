@@ -4,6 +4,7 @@
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/patrickschratz)
 
 `rcli` is a tool for simplified installion of R versions and switching between these.
+It is written in `bash`, aims to be cross-platform and low on dependencies.
 
 The following platforms/distributions are currently supported:
 
@@ -32,7 +33,8 @@ curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/releases/download/v0
 chmod a+x /usr/local/bin/rcli
 ```
 
-`rcli` requires the following libraries to be installed:
+`rcli` requires the following libraries to be installed.
+Most of these should already be installed by default in the respective distributions.
 
 - wget
 - sudo
@@ -41,7 +43,7 @@ chmod a+x /usr/local/bin/rcli
 - awk
 - grep
 
-`rcli` might eventually be added to the official repositories of the respective distributions.
+`rcli` might eventually be added to the official repositories of the respective distributions at some point in the future.
 
 ## Usage
 
