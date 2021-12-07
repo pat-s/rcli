@@ -63,6 +63,8 @@ rcli install 4.1.0 --arch x86_64
 rcli switch 4.0.2
 rcli switch 4.1.0 --arch x86_64
 
+rcli list
+
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
   }
@@ -107,20 +109,6 @@ function formatArgument() {
   # perl is installed by default on macOS, hence we use this way
   ARGUMENT=$(perl -C -lne 'print uc' <<<"$ARGUMENT")
   echo "${ARGUMENT}"
-}
-
-showInfo() {
-  # `cat << EOF` This means that cat should stop reading when EOF is detected
-  cat <<EOF
-Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
-
-Available commands:
-    install     Install an R version
-    switch      Switch between installed R versions
-    list        List installed R versions
-
-EOF
-  # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
 }
 
 function switch() {
@@ -310,7 +298,6 @@ function list() {
 
     echo -e "Installed R versions:"
 
-    # FIXME: check if grep is installed by default on macos
     # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
     ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
   fi
