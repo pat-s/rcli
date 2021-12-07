@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/pat-s/rcli/tree/main.svg?style=svg)](https://circleci.com/gh/pat-s/rcli/tree/main)
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/patrickschratz)
 
-`rcli` is a tool for simplified installing and switching between R versions.
+`rcli` is a tool for simplified installion of R versions and switching between these.
 
 The following platforms/distributions are currently supported:
 
@@ -28,11 +28,9 @@ brew install rcli
 `rcli` can be installed by downloading the latest version of the binary from GitHub:
 
 ```sh
-curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/raw/main/rcli
+curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/releases/download/v0.1.0/rcli
 chmod a+x /usr/local/bin/rcli
 ```
-
-(If you want to play it more safe, I recommend to download the latest release instead.)
 
 `rcli` requires the following libraries to be installed:
 
@@ -65,7 +63,7 @@ For macOS: R 3.4.0
 
 For Linux platforms which support binaries: R 3.0.0
 
-For Linux platforms which require source installations: Any version which success
+For Linux platforms which require source installations: Any version in principle (if it compiles successfully).
 
 </details>
 
@@ -148,6 +146,6 @@ No, `rcli` enables you to install and switch (between) any patch version of an R
 <details>
 <summary>Does `rcli` support non-LTS releases?</summary>
 
-No, currently only LTS releases are supported.
+Yes, if no RStudio binary is available, `rcli` will attempt to install R from source.
 
 </details>
