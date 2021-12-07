@@ -31,13 +31,27 @@ curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/raw/main/rcli
 chmod a+x /usr/local/bin/rcli
 ```
 
+## Usage
+
+```sh
+Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
+
+Available commands:
+    install     Install an R version
+    switch      Switch between installed R versions
+    list        List installed R versions
+```
+
 ## FAQ
 
 <details>
-<summary>What is the oldest R version that can be installed</summary>
+<summary>What is the oldest R version that can be installed?</summary>
 
 For macOS: R 3.4.0
-For Ubuntu: R 3.0.0
+
+For Linux platforms which support binaries: R 3.0.0
+
+For Linux platforms which require source installations: Any version which success
 
 </details>
 
