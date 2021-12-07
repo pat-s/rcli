@@ -29,7 +29,7 @@ brew install rcli
 `rcli` can be installed by downloading the latest version of the binary from GitHub:
 
 ```sh
-curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/releases/download/v0.1.0/rcli
+curl -fLo /usr/local/bin/rcli https://github.com/pat-s/rcli/releases/download/v0.1.0-alpha/rcli
 chmod a+x /usr/local/bin/rcli
 ```
 
