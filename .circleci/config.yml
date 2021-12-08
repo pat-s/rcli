@@ -126,7 +126,6 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install epel-release yum-utils
-            yum -y config-manager --set-enabled powertools
             yum -y install wget redhat-lsb-core sudo openblas shc R texinfo-tex openblas-devel
 
       - run:
@@ -202,6 +201,8 @@ workflows:
               only:
                 - main
     jobs:
+      - ubuntu-20-04
       - ubuntu-21-10
       - fedora
+      - centos8
       - centos7
