@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  update_formula_version:
+    name: Update the Homebrew formula with latest release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create release asset
+        run: cp rcli.sh bin/rcli
+
+      - name: Upload MacOS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/rcli
+          asset_name: rcli
+          asset_content_type: application/x-sh
+
+      - name: Set macOS release SHA 256
+        id: shasum-mac-os
+        run: |
+          echo ::set-output name=sha::"$(shasum -a 256 ./bin/rcli | awk '{printf $1}')"
+      - uses: naijabx/update-formula-homebrew-action@v1
+        with:
+          repo: pat-s/rcli
+          tap: pat-s/homebrew-rcli
+          formula: Formula/rcli.rb
+          download-url: https://github.com/pat-s/rcli/releases/download/${{ steps.get_version.outputs.version }}/rcli
+          sha256: xxxxxxxxxxxxx
+          commit-message: update rcli formula
+        env:
+          COMMIT_TOKEN: ${{ secrets.COMMIT_TOKEN }}
