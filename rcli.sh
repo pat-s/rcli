@@ -73,6 +73,12 @@ EOF
   exit 0
 fi
 
+# if R is not installed at all yet, create frameworks dir
+if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
+  echo -e "\033[36mrcli\033[0m requires R to be installed (which is not the case it seems). Please first install R, e.g. via homebrew by calling \033[36mbrew install --cask r\033[0m or by using the CRAN GUI installer".
+  exit 0
+fi
+
 # Example:
 # parseArguments "${@}"
 # echo "${ARG_0}" -> package
@@ -132,6 +138,9 @@ function switch() {
 
   R_CUT=$(echo $R_VERSION | cut -c 1-3)
 
+  currentR=$(echo $(R --version) | cut -c 11-15)
+  currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     exists=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
@@ -140,11 +149,82 @@ function switch() {
       exit 0
     fi
 
-    sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-    sudo cp -fR /opt/R/$R_VERSION-arm64/* /Library/Frameworks/R.framework/Versions 2>/dev/null
-    sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
+    # only backup if the syslib contains user packages (i.e. n > 31)
+    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    if [[ $ARG_DEBUG == 1 ]]; then
+      echo "DEBUG: Switching to arm64"
+      echo "DEBUG: n(packages) in syslib: $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs)"
+    fi
+
+    if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+
+      if [[ $currentArch == "arm64" ]]; then
+        CURRENT_R_VERSION_ARCH=$currentR-$currentArch
+      else
+        CURRENT_R_VERSION_ARCH=$currentR
+      fi
+
+      # backup existing user library
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      else
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+
+      sudo mkdir -p /opt/R/$currentR/syslib-bak
+      sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+      sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/ /Library/Frameworks/R.framework/Versions 2>/dev/null
+      sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/TARGET_R_CUT_ARCH/Resources /Library/Frameworks/R.framework/ 2>/dev/null
+
+      # need 775 permissions
+      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      # only restore if R_VERSION has a syslib-bak
+      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      fi
+
+      # clean
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
+
+    else
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+      sudo cp -fR /opt/R/$R_VERSION-arm64/ /Library/Frameworks/R.framework/Versions 2>/dev/null
+      sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
+
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      else
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+
+      # need 775 permissions
+      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      ### restore syslib from target version if it exists
+      # only restore if R_VERSION has a syslib-bak
+      if [[ $(test -d /opt/R/TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        sudo cp -fR /opt/R/TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      fi
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
+    fi
+
+    exit 0
 
   else
+
+    # ARM -> X86 switch
+    if [[ $ARG_DEBUG == 1 ]]; then
+      echo "DEBUG: Switching: arm -> x86"
+    fi
 
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
     if [[ $ARG_ARCH == "x86_64" ]]; then
@@ -162,9 +242,74 @@ function switch() {
       exit 0
     fi
 
-    sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-    sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
-    sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
+    if [[ $currentArch == "arm64" ]]; then
+      CURRENT_R_VERSION_ARCH=$currentR-arm64
+    else
+      CURRENT_R_VERSION_ARCH=$currentR
+    fi
+
+    # only backup if the syslib contains user packages
+    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+
+    if [[ $ARG_DEBUG == 1 ]]; then
+      echo -e "DEBUG: n(packages) in syslib: $(ls $SYSLIB | wc -l | xargs)"
+    fi
+
+    if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+
+      sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
+      sudo cp -fR $SYSLIB/ /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+      sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
+      sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
+
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      else
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+
+      # need 775 permissions
+      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      ### restore syslib from target version if it exists
+      # only restore if R_VERSION has a syslib-bak
+      if [[ $(test -d /opt/R/TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        sudo cp -fR /opt/R/TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      fi
+
+      # clean
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
+
+    else
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
+      sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
+      sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework/ 2>/dev/null
+
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      else
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+
+      # need 775 permissions
+      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      # only restore if R_VERSION has a syslib-bak
+      if [[ $(test -d /opt/R/$R_VERSION/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        sudo cp -fR /opt/R/$R_VERSION/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      fi
+
+      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
+    fi
+
+    exit 0
   fi
 }
 
@@ -240,6 +385,12 @@ function install() {
   # this means the request R version was smaller than 3.6.3
   if [[ $R3x == -1 ]]; then
 
+    # prevent users from reinstalling an R version that already exists
+    if [[ $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
+      echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
+      exit 0
+    fi
+
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
     curl -s https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
 
@@ -253,22 +404,91 @@ function install() {
     rm /tmp/R-${R_VERSION}.pkg
 
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
+
+    # prevent users from reinstalling an R version that already exists
+    if [[ $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
+      echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
+      exit 0
+    fi
+
+    # if R is not installed at all yet, create frameworks dir
+    if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
+      sudo mkdir -p /Library/Frameworks/R.framework
+    fi
+
+    currentR=$(echo $(R --version) | cut -c 11-15)
+    currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+
+    ### first time users
+    # checks if /opt/R/ contains any R installations
+    firstTime=$(ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /")
+    # checks if the user has installed any custom libraries into the system lib
+    if [[ $currentR != $R_VERSION && ${#firstTime} == 0 && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) != 31 ]]; then
+      echo -e "⚠️  ⚠️  ⚠️\nHey there! It seems you are using \033[36mrcli\033[0m for the first time and trying to install an R version different from the one you are currently running. This is a problem if you do not make use of a user library (which it seems like) and instead install all your packages into your system library (which is the unfortunate default on macOS, so don't worry about having done anything wrong). To prevent package loss, please first run \033[36mrcli install $currentR\033[0m so your existing packages are retained.\n"
+
+      echo -e "\033[36mrcli\033[0m is able to account for this approach by copying things around - however R version switching might take a bit longer. Please consider using a user library for your personal packages. You can do so by calling \033[36mmkdir -p /Users/$(whoami)/Library/R/$R_CUT\033[0m (x86) or \033[36mmkdir -p /Users/$(whoami)/Library/R/arm64/$R_CUT\033[0m (arm64) from the terminal. Note that this needs to be done for every R minor version (e.g. 4.1, 4.0 and so forth) and architecture.\n"
+
+      echo -e "This is a one-time message and you won't see it again after you have installed your current R version via \033[36mrcli\033[0m as suggested above."
+      exit 0
+    fi
+
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
 
     curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
 
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    # backup current system library if non exists yet
+    # this ensure that new rcli users don't loose their packages if they only use a system library
+    # only invoked if the requested R version is the same as the running version
+    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
+    if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
+      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
+      RESTORE_SYSLIB="true"
+      sudo mkdir -p /opt/R/$R_VERSION-arm64/syslib-bak
+      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION-arm64/syslib-bak
+    fi
+
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64 /opt/R/$R_VERSION-arm64/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION-arm64/ 2>/dev/null
 
+    if [[ $RESTORE_SYSLIB == "true" ]]; then
+      sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
+    fi
+
     rm /tmp/R-${R_VERSION}-arm64.pkg
   else
+    # prevent users from reinstalling an R version that already exists
+    if [[ $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION --arch x86_64\033[0m to use it."
+        exit 0
+      else
+        echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
+        exit 0
+      fi
+    fi
+
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
 
     curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
+
+    currentR=$(echo $(R --version) | cut -c 11-15)
+    currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+
+    # backup current system library if non exists yet
+    # this ensure that new rcli users don't loose their packages if they only use a system library
+    # only invoked if the requested R version is the same as the running version
+    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
+    if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
+      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
+      RESTORE_SYSLIB="true"
+      sudo mkdir -p /opt/R/$R_VERSION/syslib-bak
+      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION/syslib-bak
+    fi
 
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo rm -rf /Library/Frameworks/R.framework/Versions
@@ -276,6 +496,10 @@ function install() {
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
+
+    if [[ $RESTORE_SYSLIB == "true" ]]; then
+      sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
+    fi
 
     rm /tmp/R-${R_VERSION}.pkg
   fi
@@ -289,7 +513,6 @@ function list() {
 
       echo -e "Installed R versions:"
 
-      # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
       ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
 
     fi
@@ -298,7 +521,6 @@ function list() {
 
     echo -e "Installed R versions:"
 
-    # ls -l /opt/R | grep '^d' | awk '{ print $9 }' | grep "^[0-9][^/]*$"
     ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
   fi
 
