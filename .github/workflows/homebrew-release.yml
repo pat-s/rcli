@@ -4,6 +4,8 @@ on:
   release:
     types:
       - created
+  workflow_dispatch:
+
 
 jobs:
   update_formula_version:
@@ -17,7 +19,9 @@ jobs:
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
 
       - name: Create release asset
-        run: cp rcli.sh bin/rcli
+        run: |
+          mkdir bin
+          cp rcli.sh bin/rcli
 
       - name: Upload MacOS Release Asset
         uses: actions/upload-release-asset@v1
