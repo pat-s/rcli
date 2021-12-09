@@ -75,16 +75,19 @@ fi
 
 # pre-checks -------------------------------------------------------------------
 
-homebrew_r=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
-if ! [[ $homebrew_r == "null," ]]; then
-  echo -e "It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
-  exit 0
-fi
+if [[ $(uname) == "Darwin" ]]; then
+  homebrew_r=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
+  if ! [[ $homebrew_r == "null," ]]; then
+    echo -e "It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
+    exit 0
+  fi
 
-# if R is not installed at all yet, create frameworks dir
-if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
-  echo -e "\033[36mrcli\033[0m requires R to be installed (which is not the case it seems). Please first install R, e.g. via homebrew by calling \033[36mbrew install --cask r\033[0m or by using the CRAN GUI installer".
-  exit 0
+  # if R is not installed at all yet, create frameworks dir
+  if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
+    echo -e "\033[36mrcli\033[0m requires R to be installed (which is not the case it seems). Please first install R, e.g. via homebrew by calling \033[36mbrew install --cask r\033[0m or by using the CRAN GUI installer".
+    exit 0
+  fi
+
 fi
 
 # Example:
