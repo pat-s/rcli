@@ -51,8 +51,8 @@ jobs:
       - name: Get sha 256 of macOS version
         id: shasum_mac_os
         run: |
-          wget https://github.com/pat-s/rcli/releases/download/${{ steps.latest_tag.outputs.tag }}/rcli-${{ steps.latest_tag.outputs.tag }} &&
-          echo ::set-output name=sha::"$(shasum -a 256 ./rcli-${{ steps.latest_tag.outputs.tag }} | awk '{printf $1}')"
+          wget https://github.com/pat-s/rcli/releases/download/${{ steps.latest_tag.outputs.tag }}/rcli &&
+          echo ::set-output name=sha::"$(shasum -a 256 ./rcli | awk '{printf $1}')"
 
       - name: Set macOS release SHA 256
         id: shasum-mac-os
