@@ -8,12 +8,41 @@
 `rcli` is a tool for simplified installion of R versions and switching between these.
 It is written in `bash`, aims to be cross-platform and low on dependencies.
 
+## Motivation
+
+Having multiple R versions installed and switching between such is currently a tedious task on any operating system.
+
+On **Windows**, one can install multiple versions though switching between these is not straighforward.
+
+On **macOS**, users can only install one version of an R minor version (e.g. 4.1).
+Switching is possible by using the third-party tool [`rswitch`](https://github.com/hrbrmstr/RSwitch).
+By default, users are allowed to install packages into the system library.
+
+On **Linux**, users mostly depend on how quickly their distribution moves and brings in new R versions.
+If one wants additional versions, R needs to be installed from source into a custom location.
+Switching is not easily possible.
+By default, users are not allowed to install packages into the system library.
+
+Tools like RStudio Workbench make this easier though they require a paid license.
+Since the launch of [`renv`](https://rstudio.github.io/renv/), users aim to make their projects reproducible.
+This includes using the respective R version which was used for the project initially.
+However, in practice, people are always forced to bump this as they only have one (and most often a more recent) R version installed.
+
+`rcli` aims to solve these issues by providing
+
+- a unified way to install any R version on any major operating system
+- a simple way to switch between installed R versions without loosing the packages of the respective version
+
+
+## Platform support
+
 The following platforms/distributions are currently supported:
 
 - macOS - `x86_64` and `arm64`
 - Ubuntu `x86_64`
 - CentOS 7 and CentOS 8 `x86_64`
 - Fedora `x86_64`
+- ~~Windows~~ (planned)
 
 ## Installation
 
@@ -85,8 +114,6 @@ No. `rcli` makes use of the R binaries from [rstudio/r-builds](https://github.co
 
 </details>
 
-</details>
-
 <details>
 <summary>Does `rcli` install all dependencies needed on Linux to run R?</summary>
 
@@ -139,6 +166,20 @@ This will not work and lead to loading failures during load-time, i.e. when call
 <summary>The official macOS installation instructions from CRAN say that only one patch version per minor release can be installed. Is this also true for `rcli`?</summary>
 
 No, `rcli` enables you to install and switch (between) any patch version of an R minor version (e.g. 4.1.1 and 4.1.2).
+
+</details>
+
+<details>
+<summary>How does `rcli` actually work?</summary>
+
+`rcli` installs the selected R version via the CRAN installer and moves it to `/opt/R`.
+When switching, `rcli` first backs up the current active version and copies it to `/opt/R/<R version>`.
+Next, the target R version is moved from `/opt/R/<R version>` to `/Library/Frameworks/R.framework` where the active R version lives.
+
+Unfortunately many paths in the R CRAN installer on macOS are hardcoded and R won't work if it does not live in this particular path.
+Hence, every time an R version is switched, there is some copying happening which is why switching takes some seconds.
+
+Also `rcli` takes care of maintaining the R system library because by default user packages are installed there and these should not get lost when switching.
 
 </details>
 
