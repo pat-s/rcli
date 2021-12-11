@@ -122,6 +122,15 @@ The easiest way to do so is to install the respective distribution packages firs
 
 </details>
 
+<details>
+<summary>Are devel versions supported?</summary>
+
+Yes.
+Devel versions can be installed via `rcli install devel`.
+Internally they will be stored and labelled following their semantic version.
+
+</details>
+
 ### macOS
 
 <details>
