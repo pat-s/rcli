@@ -130,6 +130,13 @@ function formatArgument() {
 
 function switch() {
 
+  if [[ $R_VERSION == "devel" ]]; then
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+  else
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+  fi
+
   if [[ $(uname) == "Linux" ]]; then
 
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
@@ -147,9 +154,7 @@ function switch() {
     exit 0
   fi
 
-  R_CUT=$(echo $R_VERSION | cut -c 1-3)
-
-  currentR=$(echo $(R --version) | cut -c 11-15)
+  currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
   currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
 
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
@@ -397,7 +402,7 @@ function install() {
   if [[ $R3x == -1 ]]; then
 
     # prevent users from reinstalling an R version that already exists
-    if [[ $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
+    if [[ $R_VERSION != "devel" && $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
     fi
@@ -417,7 +422,7 @@ function install() {
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     # prevent users from reinstalling an R version that already exists
-    if [[ $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
+    if [[ $R_VERSION != "devel" && $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
     fi
@@ -445,9 +450,13 @@ function install() {
       exit 0
     fi
 
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
-
-    curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
+    if [[ $R_VERSION == "devel" ]]; then
+      echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
+      curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
+    else
+      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
+      curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
+    fi
 
     # backup current system library if non exists yet
     # this ensure that new rcli users don't loose their packages if they only use a system library
@@ -462,6 +471,11 @@ function install() {
 
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
+    rm /tmp/R-${R_VERSION}-arm64.pkg
+    if [[ $R_VERSION == "devel" ]]; then
+      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    fi
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64 /opt/R/$R_VERSION-arm64/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION-arm64/ 2>/dev/null
@@ -470,11 +484,10 @@ function install() {
       sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
     fi
 
-    rm /tmp/R-${R_VERSION}-arm64.pkg
   else
     # prevent users from reinstalling an R version that already exists
     if [[ $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
-      if [[ $ARG_ARCH == "x86_64" ]]; then
+      if [[ $R_VERSION != "devel" && $ARG_ARCH == "x86_64" ]]; then
         echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION --arch x86_64\033[0m to use it."
         exit 0
       else
@@ -483,9 +496,13 @@ function install() {
       fi
     fi
 
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
-
-    curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
+    if [[ $R_VERSION == "devel" ]]; then
+      echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
+      curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
+    else
+      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
+      curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
+    fi
 
     currentR=$(echo $(R --version) | cut -c 11-15)
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
@@ -504,6 +521,11 @@ function install() {
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
+    rm /tmp/R-${R_VERSION}.pkg
+    if [[ $R_VERSION == "devel" ]]; then
+      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    fi
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
@@ -512,7 +534,6 @@ function install() {
       sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
     fi
 
-    rm /tmp/R-${R_VERSION}.pkg
   fi
 }
 
