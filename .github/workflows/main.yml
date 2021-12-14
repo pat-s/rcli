@@ -10,6 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-ruby@v1
+      - name: Install Ruby dependencies
+        run: bundle update --bundler && bundle install
+      - name: Run script
+        run: bashcov rcli.sh
+
       - name: Install R
         shell: bash
         run: |
@@ -36,3 +42,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: /tmp/test-results/out
+
+      - name: Upload reports to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -f coverage/codecov-result.json -Z
