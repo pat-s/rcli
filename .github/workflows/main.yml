@@ -14,7 +14,7 @@ jobs:
         with:
           ruby-version: 2.7
       - name: Install Ruby dependencies
-        run: bundle update --bundler && bundle install
+        run: bundle install
       - name: Run script
         run: bashcov rcli.sh
 
