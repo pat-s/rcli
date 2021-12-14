@@ -312,6 +312,9 @@ function switch() {
       if [[ $ARG_ARCH == "x86_64" ]]; then
         TARGET_R_VERSION_ARCH=$R_VERSION
         TARGET_R_CUT_ARCH=$R_CUT
+      elif [[ $(arch) != "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
       else
         TARGET_R_VERSION_ARCH=$R_VERSION-arm64
         TARGET_R_CUT_ARCH=$R_CUT-arm64
