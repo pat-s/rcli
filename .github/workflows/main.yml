@@ -5,7 +5,7 @@ on:
 name: rcli-macOS
 
 jobs:
-  test:
+  test-rcli:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,6 +13,7 @@ jobs:
       - name: Install R
         run: |
           brew install --cask r
+          echo -e "SYSLIB: $(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')"
         shell: bash
 
       - name: Tests
@@ -28,4 +29,8 @@ jobs:
           R -q -s -e "library('brew')"
         shell: bash
 
-
+      - name: "Upload artifacts"
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          path: /tmp/test-results/out
