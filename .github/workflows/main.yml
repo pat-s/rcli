@@ -17,7 +17,6 @@ jobs:
       - name: Tests
         shell: bash
         run: |
-          brew install --cask r
           echo -e "SYSLIB: $(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')"
           mkdir -p /tmp/test-results && touch /tmp/test-results/out
           ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >> /tmp/test-results/out

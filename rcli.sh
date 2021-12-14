@@ -532,7 +532,7 @@ function install() {
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
 
     if [[ $RESTORE_SYSLIB == "true" ]]; then
-      sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
+      sudo cp -fR /opt/R/$R_VERSION/syslib-bak/* $SYSLIB
     fi
 
   fi
