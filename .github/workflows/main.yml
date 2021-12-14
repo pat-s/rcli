@@ -31,9 +31,11 @@ jobs:
           ./rcli.sh install 4.0.5 && R -q -s -e "R.version.string" >> /tmp/test-results/out
           echo -e "#### Switching 4.0.5 -> 4.1.2"
           ./rcli.sh switch 4.1.2 >> /tmp/test-results/out
-          R -q -s -e "install.packages('brew', repos = 'https://cran.us.r-project.org')"
+          R -q -s -e "install.packages('gam', repos = 'https://cran.us.r-project.org')" > /dev/null
+          echo -e "#### Switching 4.1.2 -> 4.0.5"
           ./rcli.sh switch 4.0.5 >> /tmp/test-results/out
-          R -q -s -e "install.packages('magrittr', repos = 'https://cran.us.r-project.org')"
+          R -q -s -e "install.packages('cli', repos = 'https://cran.us.r-project.org')" > /dev/null
+          echo -e "#### Switching 4.0.5 -> 4.1.2"
           ./rcli.sh switch 4.1.2  >> /tmp/test-results/out
           R -q -s -e "library('brew')"
 

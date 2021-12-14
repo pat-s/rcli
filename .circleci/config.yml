@@ -10,6 +10,13 @@ jobs:
       - checkout
 
       - run:
+          name: Install bundler and dependencies
+          command: apt update -y && apt install -y ruby && bundle update --bundler && bundle install
+      - run:
+          name: Run scripts
+          command: bashcov script.sh
+
+      - run:
           name: "Install apt deps"
           command: |
             apt update -y
@@ -36,6 +43,13 @@ jobs:
           path: /tmp/test-results/out
           destination: artifact-file
 
+      - run:
+          name: Upload reports to Codecov
+          command: |
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -f coverage/codecov-result.json -Z
+
   ubuntu-20-04:
     environment:
       TZ: Europe/Zurich
@@ -44,6 +58,13 @@ jobs:
       - image: ubuntu:20.04
     steps:
       - checkout
+
+      - run:
+          name: Install bundler and dependencies
+          command: apt update -y && apt install -y ruby && bundle update --bundler && bundle install
+      - run:
+          name: Run scripts
+          command: bashcov script.sh
 
       - run:
           name: "Install apt deps"
@@ -75,6 +96,13 @@ jobs:
       - store_artifacts:
           path: /tmp/test-results/out
           destination: artifact-file
+
+      - run:
+          name: Upload reports to Codecov
+          command: |
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -f coverage/codecov-result.json -Z
 
   centos8:
     environment:
