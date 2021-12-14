@@ -1,0 +1,31 @@
+on:
+  push:
+  pull_request:
+
+name: rcli-macOS
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install R
+        run: |
+          brew install --cask r
+        shell: bash
+
+      - name: Tests
+        run: |
+          mkdir -p /tmp/test-results && touch /tmp/test-results/out
+          ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >> /tmp/test-results/out
+          ./rcli.sh install 4.1.0 && R -q -s -e "R.version.string" >> /tmp/test-results/out
+          ./rcli.sh switch 4.1.2 >> /tmp/test-results/out
+          R -q -s -e "install.packages('brew')"
+          ./rcli.sh switch 4.1.0  >> /tmp/test-results/out
+          R -q -s -e "install.packages('magrittr')"
+          ./rcli.sh switch 4.1.2  >> /tmp/test-results/out
+          R -q -s -e "library('brew')"
+        shell: bash
+
+
