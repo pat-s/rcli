@@ -22,20 +22,18 @@ jobs:
         shell: bash
         run: |
           brew install --cask r
-          echo -e "Architecture: $(arch)"
 
       - name: Tests
         shell: bash
         run: |
-          echo -e "SYSLIB: $(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')"
           mkdir -p /tmp/test-results && touch /tmp/test-results/out
           ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >> /tmp/test-results/out
           ./rcli.sh install 4.0.5 && R -q -s -e "R.version.string" >> /tmp/test-results/out
           echo -e "#### Switching 4.0.5 -> 4.1.2"
           ./rcli.sh switch 4.1.2 >> /tmp/test-results/out
-          R -q -s -e "install.packages('brew')"
+          R -q -s -e "install.packages('brew', repos = 'https://cran.us.r-project.org')"
           ./rcli.sh switch 4.0.5 >> /tmp/test-results/out
-          R -q -s -e "install.packages('magrittr')"
+          R -q -s -e "install.packages('magrittr', repos = 'https://cran.us.r-project.org')"
           ./rcli.sh switch 4.1.2  >> /tmp/test-results/out
           R -q -s -e "library('brew')"
 
