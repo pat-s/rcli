@@ -10,7 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install R
+        shell: bash
+        run: brew install --cask r
+
       - name: Tests
+        shell: bash
         run: |
           brew install --cask r
           echo -e "SYSLIB: $(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')"
@@ -23,7 +28,6 @@ jobs:
           R -q -s -e "install.packages('magrittr')"
           ./rcli.sh switch 4.1.2  >> /tmp/test-results/out
           R -q -s -e "library('brew')"
-        shell: bash
 
       - name: "Upload artifacts"
         if: always()

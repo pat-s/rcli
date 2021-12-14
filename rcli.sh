@@ -506,6 +506,7 @@ function install() {
 
     currentR=$(echo $(R --version) | cut -c 11-15)
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
 
     # backup current system library if non exists yet
     # this ensure that new rcli users don't loose their packages if they only use a system library
