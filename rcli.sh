@@ -237,7 +237,7 @@ function switch() {
 
   else
 
-    # ARM -> X86 switch
+    # -> X86 switch
     if [[ $ARG_DEBUG == 1 ]]; then
       echo "DEBUG: Switching: arm -> x86"
     fi
