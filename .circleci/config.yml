@@ -49,13 +49,6 @@ jobs:
           path: /tmp/test-results/out
           destination: artifact-file
 
-      - run:
-          name: Upload reports to Codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -f coverage/codecov-result.json -Z
-
   ubuntu-20-04:
     environment:
       TZ: Europe/Zurich
@@ -70,8 +63,7 @@ jobs:
           command: |
             apt update -y
             apt install -y ruby ruby-dev
-            gem install bundler
-            bundle install
+            gem install bashcov
 
       - run:
           name: "Install apt deps"
@@ -102,9 +94,8 @@ jobs:
           command: |
             yum -y install epel-release yum-utils
             yum -y config-manager --set-enabled powertools
-            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby ruby-devel
-            gem install bundler
-            bundle install
+            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby
+            gem install bashcov
 
       - run:
           name: Tests
