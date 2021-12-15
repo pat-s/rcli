@@ -38,6 +38,12 @@ jobs:
           echo -e "#### Switching 4.0.5 -> 4.1.2"
           ./rcli.sh switch 4.1.2 --debug  >> /tmp/test-results/out.txt
           R -q -s -e "library('gam')" >> /tmp/test-results/out.txt
+          echo -e "#### Installing R devel"
+          ./rcli.sh install devel
+          echo -e "#### Switching devel -> 4.0.5"
+          ./rcli.sh switch 4.0.5 >> /tmp/test-results/out.txt
+          R -q -s -e "library('cli')" >> /tmp/test-results/out.txt
+          # if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt)  == "" ]] ; then exit 0; else exit 1 ; fi
 
       - name: "Upload artifacts"
         if: always()
