@@ -36,10 +36,10 @@ jobs:
           ls /opt/R/4.0.5
           R -q -s -e "install.packages('gam', repos = 'https://cran.us.r-project.org', quiet = TRUE)" > /dev/null
           echo -e "#### Switching 4.1.2 -> 4.0.5"
-          ./rcli.sh switch 4.0.5 >> /tmp/test-results/out
+          ./rcli.sh switch 4.0.5 --debug >> /tmp/test-results/out
           R -q -s -e "install.packages('cli', repos = 'https://cran.us.r-project.org', quiet = TRUE)" > /dev/null
           echo -e "#### Switching 4.0.5 -> 4.1.2"
-          ./rcli.sh switch 4.1.2  >> /tmp/test-results/out
+          ./rcli.sh switch 4.1.2 --debug  >> /tmp/test-results/out
           R -q -s -e "library('gam')"
 
       - name: "Upload artifacts"

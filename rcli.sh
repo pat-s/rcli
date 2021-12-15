@@ -239,7 +239,7 @@ function switch() {
 
     # -> X86 switch
     if [[ $ARG_DEBUG == 1 ]]; then
-      echo "DEBUG: Switching: arm -> x86"
+      echo "DEBUG: Switching: -> x86"
     fi
 
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
@@ -273,6 +273,10 @@ function switch() {
 
     if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
 
+      if [[ $ARG_DEBUG == 1 ]]; then
+        echo -e "DEBUG: switch(): Backing up system libraries"
+      fi
+
       sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
       sudo cp -fR $SYSLIB/ /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
 
@@ -297,6 +301,9 @@ function switch() {
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        if [[ $ARG_DEBUG == 1 ]]; then
+          echo -e "DEBUG: switch(): Restoring existing syslib"
+        fi
         sudo cp -fR /opt/R/TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
