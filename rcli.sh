@@ -194,6 +194,10 @@ function switch() {
         TARGET_R_CUT_ARCH=$R_CUT
       fi
 
+      if [[ $ARG_DEBUG == 1 ]]; then
+        echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
+      fi
+
       sudo mkdir -p /opt/R/$currentR/syslib-bak
       sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
 
@@ -206,6 +210,9 @@ function switch() {
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        if [[ $ARG_DEBUG == 1 ]]; then
+          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
+        fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
@@ -236,6 +243,9 @@ function switch() {
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        if [[ $ARG_DEBUG == 1 ]]; then
+          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
+        fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
@@ -283,7 +293,7 @@ function switch() {
     if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
 
       if [[ $ARG_DEBUG == 1 ]]; then
-        echo -e "DEBUG: switch(): Backing up system libraries"
+        echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
       fi
 
       sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
@@ -312,7 +322,7 @@ function switch() {
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
         if [[ $ARG_DEBUG == 1 ]]; then
-          echo -e "DEBUG: switch(): Restoring existing syslib"
+          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
@@ -343,6 +353,9 @@ function switch() {
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$R_VERSION/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        if [[ $ARG_DEBUG == 1 ]]; then
+          echo -e "DEBUG: switch(): Restoring existing syslib"
+        fi
         sudo cp -fR /opt/R/$R_VERSION/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
