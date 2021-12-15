@@ -1,4 +1,7 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@3.2.2
+
 jobs:
   ubuntu-21-10:
     environment:
@@ -8,6 +11,16 @@ jobs:
       - image: ubuntu:21.10
     steps:
       - checkout
+
+      - run:
+          name: Install bundler and dependencies
+          command: |
+            apt update -y
+            apt install -y ruby
+            bundle install
+      - run:
+          name: Run scripts
+          command: bashcov script.sh
 
       - run:
           name: "Install apt deps"
@@ -46,6 +59,13 @@ jobs:
       - checkout
 
       - run:
+          name: Install bundler and dependencies
+          command: |
+            apt update -y
+            apt install -y ruby ruby-dev
+            gem install bashcov
+
+      - run:
           name: "Install apt deps"
           command: |
             apt update -y
@@ -54,23 +74,8 @@ jobs:
               r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
-          name: "Install rcli"
-          command: |
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            mkdir -p /tmp/test-results
-            chmod +x /usr/local/bin/rcli
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/ubuntu-20.04/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+          name: Tests
+          command: bashcov tests/ubuntu-20.04/test-ubuntu-20.04.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -89,26 +94,12 @@ jobs:
           command: |
             yum -y install epel-release yum-utils
             yum -y config-manager --set-enabled powertools
-            yum -y install wget redhat-lsb-core sudo openblas shc R texinfo-tex openblas-devel
+            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby ruby-devel
+            gem install bashcov
 
       - run:
-          name: "Install rcli"
-          command: |
-            mkdir -p /tmp/test-results
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-            chmod +x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/centos8/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else diff --unified tests/centos8/test-out.txt /tmp/test-results/out && exit 1 ; fi
+          name: Tests
+          command: bashcov tests/centos8/test-centos8.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -187,8 +178,14 @@ jobs:
 workflows:
   test:
     jobs:
-      - ubuntu-20-04
-      - centos8
+      - ubuntu-20-04:
+          post-steps:
+            - codecov/upload:
+              file: coverage/codecov-result.json
+      - centos8:
+          post-steps:
+            - codecov/upload:
+              file: coverage/codecov-result.json
 
   # CRON job daily at 4 am in the morning
   # - runs the "build" job on the master branch and builds package cache

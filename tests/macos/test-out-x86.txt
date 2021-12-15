@@ -1,0 +1,9 @@
+[1] "R version 4.1.2 (2021-11-01)"
+[1] "R version 4.0.5 (2021-03-31)"
+DEBUG: Switching: -> x86
+DEBUG: n(packages) in syslib: 33
+DEBUG: switch(): Backing up system library to /opt/R/4.1.2/syslib-bak
+DEBUG: Switching: -> x86
+DEBUG: n(packages) in syslib: 32
+DEBUG: switch(): Backing up system library to /opt/R/4.0.5/syslib-bak
+DEBUG: switch(): Restoring existing syslib from /opt/R/4.1.2/syslib-bak into /Library/Frameworks/R.framework/Versions/4.1/Resources/library

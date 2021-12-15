@@ -1,0 +1,41 @@
+# on:
+#   push:
+#   pull_request:
+
+# name: rcli-macOS
+
+# jobs:
+#   test-rcli:
+#     runs-on: macos-latest
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: 2.7
+#       - name: Install Ruby dependencies
+#         run: bundle install
+
+#       - name: Install R
+#         shell: bash
+#         run: |
+#           brew install --cask r
+
+#       - name: Tests
+#         shell: bash
+#         run: bashcov tests/macos/test.sh
+
+#       - name: "Upload artifacts"
+#         if: always()
+#         uses: actions/upload-artifact@v2
+#         with:
+#           path: /tmp/test-results/out.txt
+
+#       - uses: codecov/codecov-action@v2
+#         with:
+#           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+#           files: coverage/codecov-result.json
+#           flags: unittests # optional
+#           name: rcli
+#           fail_ci_if_error: true # optional (default = false)
+#           verbose: true # optional (default = false)
