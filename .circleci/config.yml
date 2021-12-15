@@ -67,7 +67,10 @@ jobs:
 
       - run:
           name: Install bundler and dependencies
-          command: apt update -y && apt install -y ruby && gem install bundler && bundle update --bundler && bundle install
+            apt update -y
+            apt install -y ruby
+            gem install bundler
+            bundle install
 
       - run:
           name: "Install apt deps"
