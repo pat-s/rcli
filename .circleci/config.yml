@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@3.2.2
+
 jobs:
   ubuntu-21-10:
     environment:
@@ -94,26 +95,14 @@ jobs:
           command: |
             yum -y install epel-release yum-utils
             yum -y config-manager --set-enabled powertools
-            yum -y install wget redhat-lsb-core sudo openblas shc R texinfo-tex openblas-devel
+            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby
+            gem install bundler
+            bundle update --bundler
+            bundle install
 
       - run:
-          name: "Install rcli"
-          command: |
-            mkdir -p /tmp/test-results
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-            chmod +x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/centos8/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else diff --unified tests/centos8/test-out.txt /tmp/test-results/out && exit 1 ; fi
+          name: Tests
+          command: bashcov tests/centos8/test-centos8.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
