@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@3.2.2
 jobs:
   ubuntu-21-10:
     environment:
@@ -61,10 +63,7 @@ jobs:
 
       - run:
           name: Install bundler and dependencies
-          command: apt update -y && apt install -y ruby && bundle update --bundler && bundle install
-      - run:
-          name: Run scripts
-          command: bashcov script.sh
+          command: apt update -y && apt install -y ruby && gem install bundler && bundle update --bundler && bundle install
 
       - run:
           name: "Install apt deps"
@@ -75,34 +74,12 @@ jobs:
               r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
-          name: "Install rcli"
-          command: |
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            mkdir -p /tmp/test-results
-            chmod +x /usr/local/bin/rcli
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out
-            rcli install 3.6.3 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/ubuntu-20.04/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+          name: Tests
+          command: bashcov tests/ubuntu-20.04/test-ubuntu-20.04.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
           destination: artifact-file
-
-      - run:
-          name: Upload reports to Codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -f coverage/codecov-result.json -Z
 
   centos8:
     environment:
@@ -215,8 +192,10 @@ jobs:
 workflows:
   test:
     jobs:
-      - ubuntu-20-04
-      - centos8
+      - ubuntu-20-04:
+          post-steps:
+            - codecov/upload:
+              file: coverage/codecov-result.json
 
   # CRON job daily at 4 am in the morning
   # - runs the "build" job on the master branch and builds package cache
