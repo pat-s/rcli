@@ -205,8 +205,8 @@ function switch() {
       sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/ /Library/Frameworks/R.framework/Versions 2>/dev/null
       sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/TARGET_R_CUT_ARCH/Resources /Library/Frameworks/R.framework/ 2>/dev/null
 
-      # need 775 permissions
-      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      # need 777 permissions
+      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
@@ -214,6 +214,8 @@ function switch() {
           echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        # permissions again after copying
+        sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
       # clean
@@ -237,8 +239,8 @@ function switch() {
         TARGET_R_CUT_ARCH=$R_CUT
       fi
 
-      # need 775 permissions
-      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      # need 777 permissions
+      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
 
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
@@ -247,6 +249,8 @@ function switch() {
           echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        # permissions again after copying
+        sudo chmod 777 /Library/Frameworks/R.framework/Resources
       fi
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
@@ -315,8 +319,8 @@ function switch() {
         TARGET_R_CUT_ARCH=$R_CUT
       fi
 
-      # need 775 permissions
-      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      # need 777 permissions
+      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
 
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
@@ -325,6 +329,8 @@ function switch() {
           echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        # permissions again after copying
+        sudo chmod 777 /Library/Frameworks/R.framework/Resources
       fi
 
       # clean
@@ -348,8 +354,8 @@ function switch() {
         TARGET_R_CUT_ARCH=$R_CUT
       fi
 
-      # need 775 permissions
-      sudo chmod 775 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      # need 777 permissions
+      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$R_VERSION/syslib-bak && echo "true" || echo "false") == "true" ]]; then
@@ -357,6 +363,8 @@ function switch() {
           echo -e "DEBUG: switch(): Restoring existing syslib"
         fi
         sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        # permissions again after copying
+        sudo chmod 777 /Library/Frameworks/R.framework/Resources
       fi
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
@@ -509,6 +517,7 @@ function install() {
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}-arm64.pkg
+
     if [[ $R_VERSION == "devel" ]]; then
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
@@ -519,6 +528,7 @@ function install() {
 
     if [[ $RESTORE_SYSLIB == "true" ]]; then
       sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
+      sudo chmod 777 /Library/Frameworks/R.framework/Resources
     fi
 
   else
