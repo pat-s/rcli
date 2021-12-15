@@ -213,7 +213,7 @@ function switch() {
         if [[ $ARG_DEBUG == 1 ]]; then
           echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
       # clean
@@ -356,7 +356,7 @@ function switch() {
         if [[ $ARG_DEBUG == 1 ]]; then
           echo -e "DEBUG: switch(): Restoring existing syslib"
         fi
-        sudo cp -fR /opt/R/$R_VERSION/syslib-bak/ /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        sudo cp -fR /opt/R/$R_VERSION/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak

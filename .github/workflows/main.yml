@@ -26,17 +26,17 @@ jobs:
       - name: Tests
         shell: bash
         run: |
-          mkdir -p /tmp/test-results && touch /tmp/test-results/out
-          ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >> /tmp/test-results/out
-          ./rcli.sh install 4.0.5 && R -q -s -e "R.version.string" >> /tmp/test-results/out
+          mkdir -p /tmp/test-results && touch /tmp/test-results/out.txt
+          ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >> /tmp/test-results/out.txt
+          ./rcli.sh install 4.0.5 && R -q -s -e "R.version.string" >> /tmp/test-results/out.txt
           echo -e "#### Switching 4.0.5 -> 4.1.2"
-          ./rcli.sh switch 4.1.2 >> /tmp/test-results/out
+          ./rcli.sh switch 4.1.2 >> /tmp/test-results/out.txt
           R -q -s -e "install.packages('gam', repos = 'https://cran.us.r-project.org', quiet = TRUE)" > /dev/null
           echo -e "#### Switching 4.1.2 -> 4.0.5"
-          ./rcli.sh switch 4.0.5 --debug >> /tmp/test-results/out
+          ./rcli.sh switch 4.0.5 --debug >> /tmp/test-results/out.txt
           R -q -s -e "install.packages('cli', repos = 'https://cran.us.r-project.org', quiet = TRUE)" > /dev/null
           echo -e "#### Switching 4.0.5 -> 4.1.2"
-          ./rcli.sh switch 4.1.2 --debug  >> /tmp/test-results/out
+          ./rcli.sh switch 4.1.2 --debug  >> /tmp/test-results/out.txt
           ls /opt/R/4.1.2/syslib-bak
           ls /Library/Frameworks/R.framework/Versions/4.1/Resources/library
           R -q -s -e "installed.packages()[, 'Package']"
@@ -46,7 +46,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          path: /tmp/test-results/out
+          path: /tmp/test-results/out.txt
 
       - name: Upload reports to Codecov
         run: |
