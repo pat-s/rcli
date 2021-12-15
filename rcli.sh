@@ -180,13 +180,18 @@ function switch() {
         CURRENT_R_VERSION_ARCH=$currentR
       fi
 
-      # backup existing user library
+      if [[ $(arch) == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+      if [[ $(arch) == "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+      # override with user preference
       if [[ $ARG_ARCH == "x86_64" ]]; then
         TARGET_R_VERSION_ARCH=$R_VERSION
         TARGET_R_CUT_ARCH=$R_CUT
-      else
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
       fi
 
       sudo mkdir -p /opt/R/$currentR/syslib-bak
@@ -213,12 +218,18 @@ function switch() {
       sudo cp -fR /opt/R/$R_VERSION-arm64/ /Library/Frameworks/R.framework/Versions 2>/dev/null
       sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
 
+      if [[ $(arch) == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+      if [[ $(arch) == "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+      # override with user preference
       if [[ $ARG_ARCH == "x86_64" ]]; then
         TARGET_R_VERSION_ARCH=$R_VERSION
         TARGET_R_CUT_ARCH=$R_CUT
-      else
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
       fi
 
       # need 775 permissions
@@ -226,8 +237,8 @@ function switch() {
 
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
-        sudo cp -fR /opt/R/TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
@@ -284,15 +295,18 @@ function switch() {
       sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
       sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
 
+      if [[ $(arch) == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+      if [[ $(arch) == "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+      # override with user preference
       if [[ $ARG_ARCH == "x86_64" ]]; then
         TARGET_R_VERSION_ARCH=$R_VERSION
         TARGET_R_CUT_ARCH=$R_CUT
-      elif [[ $(arch) != "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      else
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
       fi
 
       # need 775 permissions
@@ -300,11 +314,11 @@ function switch() {
 
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
+      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
         if [[ $ARG_DEBUG == 1 ]]; then
           echo -e "DEBUG: switch(): Restoring existing syslib"
         fi
-        sudo cp -fR /opt/R/TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
 
       # clean
