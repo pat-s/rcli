@@ -69,7 +69,7 @@ jobs:
           name: Install bundler and dependencies
           command: |
             apt update -y
-            apt install -y ruby
+            apt install -y ruby ruby-dev
             gem install bundler
             bundle install
 
@@ -102,9 +102,8 @@ jobs:
           command: |
             yum -y install epel-release yum-utils
             yum -y config-manager --set-enabled powertools
-            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby
+            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby ruby-devel
             gem install bundler
-            bundle update --bundler
             bundle install
 
       - run:
