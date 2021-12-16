@@ -2,7 +2,7 @@ on:
   push:
   pull_request:
 
-name: rcli-macOS
+name: rcli-macOS-x86
 
 jobs:
   test-rcli:
