@@ -16,11 +16,8 @@ jobs:
           name: Install bundler and dependencies
           command: |
             apt update -y
-            apt install -y ruby
-            bundle install
-      - run:
-          name: Run scripts
-          command: bashcov script.sh
+            apt install -y ruby ruby-dev
+            gem install bashcov
 
       - run:
           name: "Install apt deps"
@@ -31,19 +28,8 @@ jobs:
               r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
-          name: "Install rcli"
-          command: |
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            mkdir -p /tmp/test-results
-            chmod +x /usr/local/bin/rcli
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
-            if [[ $(diff tests/ubuntu-21.10/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+          name: Tests
+          command: bashcov tests/ubuntu-21.10/test-ubuntu-21.10.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -117,26 +103,12 @@ jobs:
           name: "Install yum deps"
           command: |
             yum -y install epel-release yum-utils
-            yum -y install wget redhat-lsb-core sudo openblas shc R texinfo-tex openblas-devel
+            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby ruby-devel
+            gem install bashcov
 
       - run:
-          name: "Install rcli"
-          command: |
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-            chmod +x /usr/local/bin/rcli
-
-      - run:
-          name: "Install R"
-          command: |
-            mkdir -p /tmp/test-results
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli install 3.6.3 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            rcli switch 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" >> /tmp/test-results/out
-            if [[ $(diff tests/centos7/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else exit 1 ; fi
+          name: Tests
+          command: bashcov tests/centos7/test-centos7.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -153,23 +125,17 @@ jobs:
       - run:
           name: "Install yum deps"
           command: |
-            yum -y install wget redhat-lsb-core sudo openblas-devel shc R readline-devel \
-              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel libcurl-devel
+            yum -y install wget redhat-lsb-core sudo openblas-devel R readline-devel \
+              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel libcurl-devel ruby ruby-devel
+            gem install bashcov
 
       - run:
-          name: "Install rcli"
-          command: |
-            shc -f rcli.sh && \
-            mv rcli.sh.x /usr/local/bin/rcli
-            chmod +x /usr/local/bin/rcli
+          name: Tests
+          command: bashcov tests/feodora/fedora.sh
 
-      - run:
-          name: "Install R"
-          command: |
-            mkdir -p /tmp/test-results
-            rcli install 4.1.2 >> /tmp/test-results/out
-            R -q -s -e "R.version.string" > /tmp/test-results/out >> /tmp/test-results/out
-            if [[ $(diff tests/fedora/test-out.txt /tmp/test-results/out)  == "" ]] ; then exit 0; else diff --unified tests/fedora/test-out.txt /tmp/test-results/out && exit 1 ; fi
+      - store_artifacts:
+          path: /tmp/test-results/out
+          destination: artifact-file
 
       - store_artifacts:
           path: /tmp/test-results/out
