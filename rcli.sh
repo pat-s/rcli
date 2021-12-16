@@ -76,8 +76,8 @@ fi
 # pre-checks -------------------------------------------------------------------
 
 if [[ $(uname) == "Darwin" ]]; then
-  homebrew_r=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
-  if ! [[ $homebrew_r == "null," ]]; then
+  HOMEBREW_R=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
+  if ! [[ $HOMEBREW_R == "null," ]]; then
     echo -e "It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
     exit 0
   fi
@@ -382,6 +382,11 @@ function install() {
 
       if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" ]]; then
 
+        if [[ $R_VERSION == "devel" ]]; then
+          install_from_source
+          exit 0
+        fi
+
         codename=$(lsb_release -sr)
 
         echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
@@ -403,6 +408,11 @@ function install() {
       [[ $(lsb_release -si) == "Debian" ]]
     then
 
+      if [[ $R_VERSION == "devel" ]]; then
+        install_from_source
+        exit 0
+      fi
+
       codename=$(lsb_release -sr)
 
       echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
@@ -415,6 +425,11 @@ function install() {
       exit 0
 
     elif [[ $(lsb_release -si) == "CentOS" ]]; then
+
+      if [[ $R_VERSION == "devel" ]]; then
+        install_from_source
+        exit 0
+      fi
 
       codename=$(lsb_release -sr | cut -c 1)
 
@@ -478,6 +493,10 @@ function install() {
     fi
 
     currentR=$(echo $(R --version) | cut -c 11-15)
+    # detect if current R is r-devel
+    if [[ $currentR == "velop" ]]; then
+      currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+    fi
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
     SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
@@ -497,6 +516,9 @@ function install() {
 
     if [[ $R_VERSION == "devel" ]]; then
       echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
+
+      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     else
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
@@ -518,10 +540,6 @@ function install() {
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}-arm64.pkg
 
-    if [[ $R_VERSION == "devel" ]]; then
-      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
-      R_CUT=$(echo $R_VERSION | cut -c 1-3)
-    fi
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64 /opt/R/$R_VERSION-arm64/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION-arm64/ 2>/dev/null
@@ -545,6 +563,9 @@ function install() {
 
     if [[ $R_VERSION == "devel" ]]; then
       echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
+
+      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
     else
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
@@ -552,13 +573,17 @@ function install() {
     fi
 
     currentR=$(echo $(R --version) | cut -c 11-15)
+    # detect if current R is r-devel
+    if [[ $currentR == "velop" ]]; then
+      currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+    fi
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
     SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
 
     # backup current system library if non exists yet
     # this ensure that new rcli users don't loose their packages if they only use a system library
     # only invoked if the requested R version is the same as the running version
-    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
+    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
     if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
       echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
       RESTORE_SYSLIB="true"
@@ -570,10 +595,7 @@ function install() {
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}.pkg
-    if [[ $R_VERSION == "devel" ]]; then
-      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
-      R_CUT=$(echo $R_VERSION | cut -c 1-3)
-    fi
+
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
     sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
@@ -703,14 +725,24 @@ function version_compare_convert() {
 
 function install_from_source() {
 
-  echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+  if [[ $R_VERSION != "devel" ]]; then
+    echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+  fi
 
-  R_BRANCH=$(echo $R_VERSION | cut -c 1)
-  wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+  if [[ $R_VERSION == "devel" ]]; then
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
 
-  tar -xf R-${R_VERSION}.tar.gz
-
-  cd R-${R_VERSION}
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    curl -s -o R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+    tar -xf R-${R_VERSION}.tar.gz
+    cd R-devel
+  else
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
+    R_BRANCH=$(echo $R_VERSION | cut -c 1)
+    wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+    tar -xf R-${R_VERSION}.tar.gz
+    cd R-${R_VERSION}
+  fi
 
   ## Set compiler flags and configure options
   R_PAPERSIZE=a4 \
@@ -741,13 +773,13 @@ function install_from_source() {
 
   sudo make -s install
 
+  cd ../
+  rm R-${R_VERSION}.tar.gz
+
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
   sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
   sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/bin/Rscript
-
-  cd ../
-  rm R-${R_VERSION}.tar.gz
 
   exit 0
 }
