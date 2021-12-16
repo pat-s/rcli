@@ -166,7 +166,7 @@ function switch() {
     fi
 
     # only backup if the syslib contains user packages (i.e. n > 31)
-    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
     if [[ $ARG_DEBUG == 1 ]]; then
       echo "DEBUG: Switching to arm64"
       echo "DEBUG: n(packages) in syslib: $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs)"
@@ -198,7 +198,7 @@ function switch() {
         echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
       fi
 
-      sudo mkdir -p /opt/R/$currentR/syslib-bak
+      sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
       sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/*
@@ -213,7 +213,7 @@ function switch() {
         if [[ $ARG_DEBUG == 1 ]]; then
           echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
         fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
         # permissions again after copying
         sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
       fi
@@ -288,7 +288,7 @@ function switch() {
     fi
 
     # only backup if the syslib contains user packages
-    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
 
     if [[ $ARG_DEBUG == 1 ]]; then
       echo -e "DEBUG: n(packages) in syslib: $(ls $SYSLIB | wc -l | xargs)"
@@ -301,7 +301,7 @@ function switch() {
       fi
 
       sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
-      sudo cp -fR $SYSLIB/ /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
+      sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
 
       sudo rm -rf /Library/Frameworks/R.framework/Versions/*
       sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
@@ -498,7 +498,7 @@ function install() {
       currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
     fi
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
-    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
 
     ### first time users
@@ -578,7 +578,7 @@ function install() {
       currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
     fi
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
-    SYSLIB=$(R -q -s -e "tail(.libPaths())" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
 
     # backup current system library if non exists yet
     # this ensure that new rcli users don't loose their packages if they only use a system library
