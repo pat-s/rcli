@@ -732,7 +732,7 @@ function install_from_source() {
   if [[ $R_VERSION == "devel" ]]; then
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
 
-    R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     wget -q -o R-$R_VERSION.tar.gz "https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz"
   else
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
