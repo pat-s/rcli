@@ -76,8 +76,8 @@ fi
 # pre-checks -------------------------------------------------------------------
 
 if [[ $(uname) == "Darwin" ]]; then
-  homebrew_r=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
-  if ! [[ $homebrew_r == "null," ]]; then
+  HOMEBREW_R=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
+  if ! [[ $HOMEBREW_R == "null," ]]; then
     echo -e "It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
     exit 0
   fi
@@ -382,6 +382,11 @@ function install() {
 
       if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" ]]; then
 
+        if [[ $R_VERSION == "devel" ]]; then
+          install_from_source
+          exit 0
+        fi
+
         codename=$(lsb_release -sr)
 
         echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
@@ -403,6 +408,11 @@ function install() {
       [[ $(lsb_release -si) == "Debian" ]]
     then
 
+      if [[ $R_VERSION == "devel" ]]; then
+        install_from_source
+        exit 0
+      fi
+
       codename=$(lsb_release -sr)
 
       echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
@@ -415,6 +425,11 @@ function install() {
       exit 0
 
     elif [[ $(lsb_release -si) == "CentOS" ]]; then
+
+      if [[ $R_VERSION == "devel" ]]; then
+        install_from_source
+        exit 0
+      fi
 
       codename=$(lsb_release -sr | cut -c 1)
 
@@ -703,10 +718,16 @@ function version_compare_convert() {
 
 function install_from_source() {
 
-  echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+  if [[ $R_VERSION != "devel" ]]; then
+    echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
+  fi
 
-  R_BRANCH=$(echo $R_VERSION | cut -c 1)
-  wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+  if [[ $R_VERSION == "devel" ]]; then
+    wget -q "https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz"
+  else
+    R_BRANCH=$(echo $R_VERSION | cut -c 1)
+    wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+  fi
 
   tar -xf R-${R_VERSION}.tar.gz
 
