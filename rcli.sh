@@ -733,7 +733,7 @@ function install_from_source() {
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
 
     R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
-    wget -q "https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz"
+    wget -q -o R-$R_VERSION.tar.gz "https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz"
   else
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
     R_BRANCH=$(echo $R_VERSION | cut -c 1)
@@ -775,11 +775,6 @@ function install_from_source() {
 
   cd ../
   rm R-${R_VERSION}.tar.gz
-
-  if [[ $R_VERSION == "devel" ]]; then
-    R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
-  fi
 
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
