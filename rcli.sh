@@ -733,16 +733,16 @@ function install_from_source() {
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
 
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
-    curl -s -o  R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+    curl -s -o R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+    tar -xf R-${R_VERSION}.tar.gz
+    cd R-devel
   else
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
     R_BRANCH=$(echo $R_VERSION | cut -c 1)
     wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+    tar -xf R-${R_VERSION}.tar.gz
+    cd R-${R_VERSION}
   fi
-
-  tar -xf R-${R_VERSION}.tar.gz
-
-  cd R-${R_VERSION}
 
   ## Set compiler flags and configure options
   R_PAPERSIZE=a4 \
