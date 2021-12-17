@@ -737,8 +737,8 @@ function install_from_source() {
     tar -xf R-${R_VERSION}.tar.gz
     cd R-devel
   else
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
     R_BRANCH=$(echo $R_VERSION | cut -c 1)
+    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
     wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
     tar -xf R-${R_VERSION}.tar.gz
     cd R-${R_VERSION}
