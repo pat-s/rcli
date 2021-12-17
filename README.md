@@ -102,7 +102,7 @@ For Linux platforms which require source installations: Any version in principle
 </details>
 
 <details>
-<summary>How does `rcli` relate to `rswitch`?</summary>
+<summary>How does <code>rcli</code> relate to <code>rswitch</code>?</summary>
 
 `rcli` was inspired by `rswitch` but is otherwise not affiliated with `rswitch` in any way.
 
@@ -116,7 +116,7 @@ No. `rcli` makes use of the R binaries from [rstudio/r-builds](https://github.co
 </details>
 
 <details>
-<summary>Does `rcli` install all dependencies needed on Linux to run R?</summary>
+<summary>Does <code>rcli</code> install all dependencies needed on Linux to run R?</summary>
 
 No, `rcli` assumes that all runtime dependencies are installed.
 The easiest way to do so is to install the respective distribution packages first (e.g. `r-base-core` on Ubuntu or `R` on Fedora) so that all dependencies are installed and then invoke `rcli` to install custom versions.
@@ -142,7 +142,7 @@ Yes, `rcli` installs the official CRAN R releases which support the use of CRAN 
 </details>
 
 <details>
-<summary>`radian` does not seem to work with `x86_64` R installations.</summary>
+<summary><code>radian</code> does not seem to work with <code>x86_64</code> R installations.</summary>
 
 `radian` is a Python library and built for the `arm64` architecture.
 Hence, it can only work with the R `arm64` installations.
@@ -152,7 +152,7 @@ To use `radian` with an `x86_64` installation of R, Python for `x86_64` would ne
 </details>
 
 <details>
-<summary>I have a M1 - can I still install R for `x86_64` systems?</summary>
+<summary>I have a M1 - can I still install R for <code>x86_64</code> systems?</summary>
 
 Yes, `x86_64`  is supported by macOS via the "Rosetta 2" translation environment.
 By default, `rcli` will install the `arm64` version of R if one is available (>= v4.1.0).
@@ -173,14 +173,14 @@ This will not work and lead to loading failures during load-time, i.e. when call
 </details>
 
 <details>
-<summary>The official macOS installation instructions from CRAN say that only one patch version per minor release can be installed. Is this also true for `rcli`?</summary>
+<summary>The official macOS installation instructions from CRAN say that only one patch version per minor release can be installed. Is this also true for <code>rcli</code>?</summary>
 
 No, `rcli` enables you to install and switch (between) any patch version of an R minor version (e.g. 4.1.1 and 4.1.2).
 
 </details>
 
 <details>
-<summary>How does `rcli` actually work?</summary>
+<summary>How does <code>rcli</code> actually work?</summary>
 
 `rcli` installs the selected R version via the CRAN installer and moves it to `/opt/R`.
 When switching, `rcli` first backs up the current active version and copies it to `/opt/R/<R version>`.
@@ -199,7 +199,7 @@ Also `rcli` takes care of maintaining the R system library because by default us
 </details>
 
 <details>
-<summary>Does `rcli` support non-LTS releases?</summary>
+<summary>Does <code>rcli</code> support non-LTS releases?</summary>
 
 Yes, if no RStudio binary is available, `rcli` will attempt to install R from source.
 
