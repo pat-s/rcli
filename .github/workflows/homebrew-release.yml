@@ -3,9 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
-
 
 jobs:
   update_formula_version:
@@ -54,6 +53,11 @@ jobs:
           wget https://github.com/pat-s/rcli/releases/download/${{ steps.latest_tag.outputs.tag }}/rcli &&
           echo ::set-output name=sha::"$(shasum -a 256 ./rcli | awk '{printf $1}')"
 
+      - name: Remove gemfile to avoid confusion
+        run: |
+          rm Gemfile
+          rm .simplecov
+
       - name: Set macOS release SHA 256
         id: shasum-mac-os
         run: |
@@ -66,6 +70,5 @@ jobs:
           download-url: https://github.com/pat-s/rcli/releases/download/${{ steps.get_version.outputs.version }}/rcli
           sha256: ${{ steps.shasum_mac_os.outputs.sha }}
           commit-message: update rcli formula
-          license: MIT
         env:
           COMMIT_TOKEN: ${{ secrets.COMMIT_TOKEN }}
