@@ -109,6 +109,14 @@ For Linux platforms which require source installations: Any version in principle
 </details>
 
 <details>
+<summary>Are aliases supported?</summary>
+
+Yes, `release` and `devel` aliases are supported.
+These are matched via regex, hence using `dev` or `rel` will also work.
+
+</details>
+
+<details>
 <summary>Do I need to install every R version from source on Linux?</summary>
 
 No. `rcli` makes use of the R binaries from [rstudio/r-builds](https://github.com/rstudio/r-builds) for the respective underlying distribution.
