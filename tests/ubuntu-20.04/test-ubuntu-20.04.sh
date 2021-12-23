@@ -1,5 +1,5 @@
 mkdir -p /tmp/test-results
-chmod +x /usr/local/bin/./rcli.sh
+
 ./rcli.sh install >>/tmp/test-results/out.txt
 ./rcli.sh install 4.1.2 >>/tmp/test-results/out.txt
 R -q -s -e "R.version.string" >/tmp/test-results/out.txt
