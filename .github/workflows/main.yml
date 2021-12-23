@@ -31,11 +31,11 @@ jobs:
         with:
           path: /tmp/test-results/out.txt
 
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          files: coverage/codecov-result.json
-          flags: unittests # optional
-          name: rcli
-          fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
+      # - uses: codecov/codecov-action@v2
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+      #     files: coverage/codecov-result.json
+      #     flags: unittests # optional
+      #     name: rcli
+      #     fail_ci_if_error: true # optional (default = false)
+      #     verbose: true # optional (default = false)

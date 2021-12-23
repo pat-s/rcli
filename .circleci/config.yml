@@ -155,13 +155,13 @@ workflows:
   test:
     jobs:
       - ubuntu-20-04:
-          post-steps:
-            - codecov/upload:
-              file: coverage/codecov-result.json
+          # post-steps:
+          #   - codecov/upload:
+          #     file: coverage/codecov-result.json
       - centos8:
-          post-steps:
-            - codecov/upload:
-              file: coverage/codecov-result.json
+          # post-steps:
+          #   - codecov/upload:
+          #     file: coverage/codecov-result.json
 
   # CRON job daily at 4 am in the morning
   # - runs the "build" job on the master branch and builds package cache
