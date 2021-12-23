@@ -130,7 +130,7 @@ function formatArgument() {
 
 function switch() {
 
-  if [[ $R_VERSION == "devel" ]]; then
+  if [[ $R_VERSION =~ dev ]]; then
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
   else
@@ -382,7 +382,8 @@ function install() {
 
       if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" ]]; then
 
-        if [[ $R_VERSION == "devel" ]]; then
+        if [[ $R_VERSION =~ dev ]]; then
+          R_VERSION="devel"
           install_from_source
           exit 0
         fi
@@ -408,7 +409,8 @@ function install() {
       [[ $(lsb_release -si) == "Debian" ]]
     then
 
-      if [[ $R_VERSION == "devel" ]]; then
+      if [[ $R_VERSION =~ dev ]]; then
+        R_VERSION="devel"
         install_from_source
         exit 0
       fi
@@ -426,7 +428,8 @@ function install() {
 
     elif [[ $(lsb_release -si) == "CentOS" ]]; then
 
-      if [[ $R_VERSION == "devel" ]]; then
+      if [[ $R_VERSION =~ dev ]]; then
+        R_VERSION="devel"
         install_from_source
         exit 0
       fi
@@ -514,7 +517,8 @@ function install() {
       exit 0
     fi
 
-    if [[ $R_VERSION == "devel" ]]; then
+      if [[ $R_VERSION =~ dev ]]; then
+        R_VERSION="devel"
       echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
 
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
@@ -561,7 +565,8 @@ function install() {
       fi
     fi
 
-    if [[ $R_VERSION == "devel" ]]; then
+    if [[ $R_VERSION =~ dev ]]; then
+      R_VERSION="devel"
       echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
 
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
@@ -729,7 +734,8 @@ function install_from_source() {
     echo -e "ℹ Installing \033[36mR $R_VERSION\033[0m from source as no binary is available for your system - this might take a while."
   fi
 
-  if [[ $R_VERSION == "devel" ]]; then
+  if [[ $R_VERSION =~ dev ]]; then
+    R_VERSION="devel"
     echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
 
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
@@ -794,6 +800,15 @@ function rcli() {
 
   R_VERSION=$2
   arch=$(uname -m)
+
+  if [[ $R_VERSION == "" ]]; then
+    echo "Passing an R version (or alias) is required."
+    exit 0
+  fi
+
+  if [[ $R_VERSION =~ rel ]]; then
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+  fi
 
   if [[ $1 == "install" ]]; then
     arm_avail=$(version_compare $R_VERSION 4.0.6)
