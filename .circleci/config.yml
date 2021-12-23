@@ -154,11 +154,11 @@ jobs:
 workflows:
   test:
     jobs:
-      - ubuntu-20-04:
+      - ubuntu-20-04
           # post-steps:
           #   - codecov/upload:
           #     file: coverage/codecov-result.json
-      - centos8:
+      - centos8
           # post-steps:
           #   - codecov/upload:
           #     file: coverage/codecov-result.json
