@@ -1,4 +1,5 @@
 mkdir -p /tmp/test-results && touch /tmp/test-results/out.txt
+./rcli.sh install
 ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 ./rcli.sh install 4.0.5 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 echo -e "#### Switching 4.0.5 -> 4.1.2"

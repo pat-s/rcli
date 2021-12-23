@@ -23,7 +23,7 @@ jobs:
 
       - name: Tests
         shell: bash
-        run: bashcov tests/macos/test.sh
+        run: bash tests/macos/test.sh
 
       - name: "Upload artifacts"
         if: always()
