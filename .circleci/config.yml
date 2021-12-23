@@ -29,7 +29,7 @@ jobs:
 
       - run:
           name: Tests
-          command: bashcov tests/ubuntu-21.10/test-ubuntu-21.10.sh
+          command: bash tests/ubuntu-21.10/test-ubuntu-21.10.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -61,7 +61,7 @@ jobs:
 
       - run:
           name: Tests
-          command: bashcov tests/ubuntu-20.04/test-ubuntu-20.04.sh
+          command: bash tests/ubuntu-20.04/test-ubuntu-20.04.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -85,7 +85,7 @@ jobs:
 
       - run:
           name: Tests
-          command: bashcov tests/centos8/test-centos8.sh
+          command: bash tests/centos8/test-centos8.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -118,7 +118,7 @@ jobs:
 
       - run:
           name: Tests
-          command: bashcov tests/centos7/test-centos7.sh
+          command: bash tests/centos7/test-centos7.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
@@ -141,7 +141,7 @@ jobs:
 
       - run:
           name: Tests
-          command: bashcov tests/fedora-latest/test-fedora.sh
+          command: bash tests/fedora-latest/test-fedora.sh
 
       - store_artifacts:
           path: /tmp/test-results/out
