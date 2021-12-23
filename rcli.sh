@@ -25,7 +25,7 @@ if [[ $1 == "" ]]; then
   showInfo() {
     # `cat << EOF` This means that cat should stop reading when EOF is detected
     cat <<EOF
-Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
+Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE] [--force]
 
 Available commands:
     install     Install an R version
@@ -47,11 +47,13 @@ elif [[ $1 == "--help" || $1 == "-h" ]]; then
   showHelp() {
     # `cat << EOF` This means that cat should stop reading when EOF is detected
     cat <<EOF
-Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE]
+Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE] [--force]
 
 -h, --help       Display this help.
 
 --arch           Request a specific architecture. Only applies to macOS and only takes 'x86_64' as a valid input.
+
+--force          Force reinstall an R version even if its already installed.
 
 -v, --version    Return the version.
 
@@ -62,6 +64,8 @@ rcli install 4.1.0 --arch x86_64
 
 rcli switch 4.0.2
 rcli switch 4.1.0 --arch x86_64
+
+rcli install 4.0.2 --force
 
 rcli list
 
@@ -465,7 +469,7 @@ function install() {
   if [[ $R3x == -1 ]]; then
 
     # prevent users from reinstalling an R version that already exists
-    if [[ $R_VERSION != "devel" && $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
+    if [[ $R_VERSION != "devel" && $ARG_FORCE != 1 && $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
     fi
@@ -485,7 +489,7 @@ function install() {
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     # prevent users from reinstalling an R version that already exists
-    if [[ $R_VERSION != "devel" && $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
+    if [[ $R_VERSION != "devel" && $ARG_FORCE != 1 && $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
     fi
@@ -555,7 +559,7 @@ function install() {
 
   else
     # prevent users from reinstalling an R version that already exists
-    if [[ $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
+    if [[ $ARG_FORCE != 1 && $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
       if [[ $R_VERSION != "devel" && $ARG_ARCH == "x86_64" ]]; then
         echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION --arch x86_64\033[0m to use it."
         exit 0
