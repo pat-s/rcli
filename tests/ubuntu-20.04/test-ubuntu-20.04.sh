@@ -1,3 +1,6 @@
+set -x
+set -e
+
 mkdir -p /tmp/test-results
 
 ./rcli.sh install >>/tmp/test-results/out.txt
