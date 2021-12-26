@@ -397,6 +397,7 @@ function install() {
         echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
         wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
         sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+        sudo apt -f install
         rm r-${R_VERSION}_1_amd64.deb
         sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
         sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
