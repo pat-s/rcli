@@ -71,7 +71,7 @@ jobs:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: centos:8
+      - image: pats22/centos8-rcli
     steps:
       - checkout
 
