@@ -1,0 +1,79 @@
+name: Docker Build And Push To Docker Hub
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+
+
+jobs:
+  build:
+    name: Build Spring Boot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout Code
+        uses: actions/checkout@v2
+        id: git_checkout
+
+      - name: Set up JDK 12.0
+        uses: actions/setup-java@v1
+        with:
+          java-version: 12.0
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Build Centos8 Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: "docker.io"
+          repository_name: "centos8-rcli"
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: "latest"
+          docker_file: "docker/centos8/Dockerfile"
+
+      - name: Build Centos7 Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: "docker.io"
+          repository_name: "centos7-rcli"
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: "latest"
+          docker_file: "docker/centos7/Dockerfile"
+
+      - name: Build Ubuntu 20.04 Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: "docker.io"
+          repository_name: "ubuntu-20.04-rcli"
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: "latest"
+          docker_file: "docker/ubuntu20.04/Dockerfile"
+
+      - name: Build Ubuntu 21.10 Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: "docker.io"
+          repository_name: "ubuntu-21.10-rcli"
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: "latest"
+          docker_file: "docker/ubuntu21.10/Dockerfile"
+
+      - name: Build Fedora Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: "docker.io"
+          repository_name: "fedora-rcli"
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: "latest"
+          docker_file: "docker/fedora/Dockerfile"

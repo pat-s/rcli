@@ -8,24 +8,9 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu:21.10
+      - image: ubuntu-21.10-rcli
     steps:
       - checkout
-
-      - run:
-          name: Install bundler and dependencies
-          command: |
-            apt update -y
-            apt install -y ruby ruby-dev
-            gem install bashcov
-
-      - run:
-          name: "Install apt deps"
-          command: |
-            apt update -y
-            apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils \
-              shc dialog unzip zip lpr perl wget gfortran g++ xorg xorg-dev \
-              r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
           name: Tests
@@ -40,24 +25,9 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu:20.04
+      - image: ubuntu-20.04-rcli
     steps:
       - checkout
-
-      - run:
-          name: Install bundler and dependencies
-          command: |
-            apt update -y
-            apt install -y ruby ruby-dev
-            gem install bashcov
-
-      - run:
-          name: "Install apt deps"
-          command: |
-            apt update -y
-            apt install -y curl gcc g++ lsb-release wget dpkg sudo apt-utils \
-              shc dialog unzip zip lpr perl wget gfortran g++ xorg xorg-dev \
-              r-base-core libcurl4-openssl-dev file tzdata
 
       - run:
           name: Tests
@@ -76,14 +46,6 @@ jobs:
       - checkout
 
       - run:
-          name: "Install yum deps"
-          command: |
-            yum -y install epel-release yum-utils
-            yum -y config-manager --set-enabled powertools
-            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel ruby ruby-devel
-            gem install bashcov
-
-      - run:
           name: Tests
           command: bash tests/centos8/test-centos8.sh
 
@@ -95,26 +57,9 @@ jobs:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: centos:7
+      - image: centos7-rcli
     steps:
       - checkout
-
-      - run:
-          name: "Install yum deps"
-          command: |
-            yum -y install epel-release yum-utils
-            # install ruby 2.7
-            yum install -y centos-release-scl-rh
-            yum install -y rh-ruby27-ruby rh-ruby27-ruby-devel
-            export PATH=/opt/rh/rh-ruby27/root/usr/local/bin:/opt/rh/rh-ruby27/root/usr/bin${PATH:+:${PATH}}
-            export LD_LIBRARY_PATH=/opt/rh/rh-ruby27/root/usr/local/lib64:/opt/rh/rh-ruby27/root/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-            export MANPATH=/opt/rh/rh-ruby27/root/usr/local/share/man:/opt/rh/rh-ruby27/root/usr/share/man:$MANPATH
-            export PKG_CONFIG_PATH=/opt/rh/rh-ruby27/root/usr/local/lib64/pkgconfig:/opt/rh/rh-ruby27/root/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
-            export XDG_DATA_DIRS=/opt/rh/rh-ruby27/root/usr/local/share:/opt/rh/rh-ruby27/root/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
-            export PATH=/opt/rh/rh-ruby27/root/usr/local/bin:$PATH
-            # install r-deps
-            yum -y install wget redhat-lsb-core sudo openblas R texinfo-tex openblas-devel
-            gem install bashcov
 
       - run:
           name: Tests
@@ -128,16 +73,9 @@ jobs:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: fedora
+      - image: fedora-rcli
     steps:
       - checkout
-
-      - run:
-          name: "Install yum deps"
-          command: |
-            yum -y install wget redhat-lsb-core sudo openblas-devel R readline-devel \
-              xorg-x11-server-devel xorg-x11-server-Xorg xorg-x11-server-common xorg-x11-server-devel libX11-devel libXt-devel libcurl-devel ruby ruby-devel
-            gem install bashcov
 
       - run:
           name: Tests
