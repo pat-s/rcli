@@ -8,7 +8,7 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu-21.10-rcli
+      - image: pats22/ubuntu-21.10-rcli
     steps:
       - checkout
 
@@ -25,7 +25,7 @@ jobs:
       TZ: Europe/Zurich
       DEBIAN_FRONTEND: noninteractive
     docker:
-      - image: ubuntu-20.04-rcli
+      - image: pats22/ubuntu-20.04-rcli
     steps:
       - checkout
 
@@ -57,7 +57,7 @@ jobs:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: centos7-rcli
+      - image: pats22/centos7-rcli
     steps:
       - checkout
 
@@ -73,7 +73,7 @@ jobs:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: fedora-rcli
+      - image: pats22/fedora-rcli
     steps:
       - checkout
 
