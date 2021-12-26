@@ -1,4 +1,4 @@
-→ Downloading [36mhttps://cdn.rstudio.com/r/centos-7/pkgs/R-4.1.1-1-1.x86_64.rpm[0m
+→ Downloading [36mhttps://cdn.rstudio.com/r/centos-8/pkgs/R-4.1.1-1-1.x86_64.rpm[0m
 [1] "R version 4.1.1 (2021-08-10)"
 → Downloading [36mhttps://cdn.rstudio.com/r/centos-8/pkgs/R-3.6.3-1-1.x86_64.rpm[0m
 [1] "R version 3.6.3 (2020-02-29)"
