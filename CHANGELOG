@@ -1,0 +1,58 @@
+rcli v0.5.1
+2022-01-23
+
+- Fix reported version number (#16)
+
+--------------------------------------------------------------------------------
+
+rcli v0.5.0
+2021-12-24
+
+- Allow to force reinstall R versions (#14)
+- Add support for R version aliases (e.g. `release` or `devel`) (#13)
+- Move documentation to "Gitbook" at https://rcli.pat-s.me
+
+--------------------------------------------------------------------------------
+
+rcli v0.4.1
+2021-12-17
+
+- Linux: Fix installations from source.
+
+--------------------------------------------------------------------------------
+
+rcli v0.4.0
+2021-12-16
+
+- Added r-devel support for Linux
+- Improved/fixed R version switching on macOS
+- Added tests for macOS x86
+- Enabled codecov
+
+--------------------------------------------------------------------------------
+
+rcli v0.3.0
+2021-12-11
+
+- Added support for installing and switching for R devel builds for macOS.
+
+--------------------------------------------------------------------------------
+
+rcli v0.2.0
+2021-12-09
+
+First "official" release.
+
+- `rcli` now detects and warns if a user has the homebrew `r` formula installed instead of the cask
+- `rcli` now properly handles switching between x86 and arm64 versions on macOS when only using the system library for R packages- Same as v0.2.0 - added GHA release automation for homebrew.
+
+--------------------------------------------------------------------------------
+
+rcli v0.1.0-beta
+2021-12-09
+
+- `rcli` now detects if R is not installed in the first place
+- `rcli` now accounts for non-existent user libraries and preserves existing system library packages
+- `rcli` now prevents from re-installing an already installed R version
+- `rcli` warns first time users that it is required to first install the current version that is in use
+- Ditched the usage of `shc` for creating a binary and distributing the raw shell script instead.
