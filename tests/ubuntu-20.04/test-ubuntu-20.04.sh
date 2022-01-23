@@ -1,5 +1,6 @@
-set -x
 set -e
+set -x
+set -o pipefail
 
 mkdir -p /tmp/test-results
 
