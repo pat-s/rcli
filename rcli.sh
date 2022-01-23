@@ -92,6 +92,16 @@ if [[ $(uname) == "Darwin" ]]; then
     exit 0
   fi
 
+  local_bin=$(echo $PATH | grep "/usr/local/bin" 2>/dev/null || echo FALSE)
+  if [ "$local_bin" == FALSE ]; then
+    echo -e "Your \$PATH does not include '/usr/local/bin' which is required for \033[36mrcli\033[0m to work. Please add it to your \$PATH environment variable. If you do not know what this means, please visit \033[36m<https://rcli.pat-s.me/faq>\033[0m and see the entry about 'PATH'."
+  fi
+
+  sbin=$(echo $PATH | grep "/usr/sbin" 2>/dev/null || echo FALSE)
+  if [ "$sbin" == FALSE ]; then
+    echo -e "Your \$PATH does not include '/usr/local/bin' which is required for \033[36mrcli\033[0m to work. Please add it to your \$PATH environment variable. If you do not know what this means, please visit \033[36m<https://rcli.pat-s.me/faq>\033[0m and see the entry about 'PATH'."
+  fi
+
 fi
 
 # Example:
@@ -522,8 +532,8 @@ function install() {
       exit 0
     fi
 
-      if [[ $R_VERSION =~ dev ]]; then
-        R_VERSION="devel"
+    if [[ $R_VERSION =~ dev ]]; then
+      R_VERSION="devel"
       echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
 
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
