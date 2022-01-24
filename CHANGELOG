@@ -2,7 +2,7 @@ rcli (0.5.1-1) unstable; urgency=medium
 
   * Fix reported version number (#16)
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 23 Jan 2022 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 23 Jan 2022 19:44:15 +0100
 
 rcli (0.5.0-1) unstable; urgency=medium
 
@@ -10,13 +10,13 @@ rcli (0.5.0-1) unstable; urgency=medium
   * Add support for R version aliases (e.g. `release` or `devel`) (#13)
   * Move documentation to "Gitbook" at https://rcli.pat-s.me
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 24 Dec 2021 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 24 Dec 2021 19:44:15 +0100
 
 rcli (0.4.1-1) unstable; urgency=medium
 
   * Linux: Fix installations from source.
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 17 Dec 2021 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 17 Dec 2021 19:44:15 +0100
 
 rcli (0.4.0-1) unstable; urgency=medium
 
@@ -25,14 +25,14 @@ rcli (0.4.0-1) unstable; urgency=medium
   * Added tests for macOS x86
   * Enabled codecov
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 16 Dec 2021 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 16 Dec 2021 19:44:15 +0100
 
 rcli (0.3.0-1) unstable; urgency=medium
 2021-12-11
 
   * Added support for installing and switching for R devel builds for macOS.
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 11 Dec 2021 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 11 Dec 2021 19:44:15 +0100
 
 rcli (0.2.0-1) unstable; urgency=medium
 
@@ -41,7 +41,7 @@ First "official" release.
   * `rcli` now detects and warns if a user has the homebrew `r` formula installed instead of the cask
   * `rcli` now properly handles switching between x86 and arm64 versions on macOS when only using the system library for R packages- Same as v0.2.0 - added GHA release automation for homebrew.
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 09 Dec 2022 19:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 09 Dec 2022 19:44:15 +0100
 
 rcli (0.1.0-1) unstable; urgency=medium
 
@@ -51,4 +51,4 @@ rcli (0.1.0-1) unstable; urgency=medium
   * `rcli` warns first time users that it is required to first install the current version that is in use
   * Ditched the usage of `shc` for creating a binary and distributing the raw shell script instead.
 
--- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 09 12 2022 18:44:15 +0100
+ -- Patrick Schratz <patrick.schratz@gmail.com>  Sun, 09 12 2022 18:44:15 +0100
