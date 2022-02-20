@@ -5,6 +5,7 @@ DEV: rcli (0.6.0-1) unstable; urgency=medium
   * rcli now tries to exist early if no installation of Rosetta2 is detected when trying to install x86 R versions
   * `rcli ls` is now an alias to `rcli list`
   * `rcli list` shows again the installed R versions
+  * `rcli ls` can now also show all existing R user libraries via `rcli ls user_libs`
 
 rcli (0.5.1-1) unstable; urgency=medium
 
