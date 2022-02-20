@@ -840,7 +840,7 @@ function rcli() {
   R_VERSION=$2
   arch=$(uname -m)
 
-  if [[ $R_VERSION == "" ]]; then
+  if [[ $1 != "list" && $1 != "ls" && $R_VERSION == "" ]]; then
     echo "Passing an R version (or alias) is required."
     exit 0
   fi
@@ -862,6 +862,10 @@ function rcli() {
     exit 0
 
   elif [[ $1 == "list" ]]; then
+    list
+    exit 0
+
+  elif [[ $1 == "ls" ]]; then
     list
     exit 0
 

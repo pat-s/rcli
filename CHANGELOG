@@ -3,6 +3,8 @@ DEV: rcli (0.6.0-1) unstable; urgency=medium
   * rcli now tries to be more helpful to first time users by offering to install R using the CRAN installer if no R CRAN installation is detected.
   * rcli does not suggest homebrew anymore for the initial installation of R as this would result in possibly inadvertent automatic updates for new R releases
   * rcli now tries to exist early if no installation of Rosetta2 is detected when trying to install x86 R versions
+  * `rcli ls` is now an alias to `rcli list`
+  * `rcli list` shows again the installed R versions
 
 rcli (0.5.1-1) unstable; urgency=medium
 
