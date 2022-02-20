@@ -82,13 +82,29 @@ fi
 if [[ $(uname) == "Darwin" ]]; then
   HOMEBREW_R=$(brew info --json r | grep "linked" | xargs | cut -c 13-)
   if ! [[ $HOMEBREW_R == "null," ]]; then
-    echo -e "It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
+    echo -e "\033[0;31mERROR\033[0m: It looks like you installed R via the homebrew formula (instead of using the \033[36m--cask\033[0m option which provides the official CRAN installer). \033[36mrcli\033[0m is incompatible with the homebrew formula. To use \033[36mrcli\033[0m, please switch to the homebrew cask via \033[36mbrew remove r && brew install --cask r\033[0m."
     exit 0
   fi
 
   # if R is not installed at all yet, create frameworks dir
   if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
-    echo -e "\033[36mrcli\033[0m requires R to be installed (which is not the case it seems). Please first install R, e.g. via homebrew by calling \033[36mbrew install --cask r\033[0m or by using the CRAN GUI installer".
+    echo -e "\033[36mrcli\033[0m requires R to be installed - which is not the case it seems. The official CRAN R installer from \033[0;32mhttps://cran.r-project.org\033[0m must be used."
+    echo -e "Do you want \033[36mrcli\033[0m to install R 4.0.5 (x86_64) for you now [Y/y]? (You can install more recent R versions via \033[36mrcli install <version>\033[0m afterwards)"
+    read -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo -e "-> Installing \033[36mR 4.0.5\033[0m"
+      curl -s https://cran.r-project.org/bin/macosx/base/R-4.0.5.pkg -o /tmp/R-4.0.5.pkg
+      sudo installer -pkg /tmp/R-4.0.5.pkg -target / >/dev/null
+
+      # # check if brew is available
+      # if [[ $(which brew) == "" ]]; then
+      #   echo -e "\033[0;31mERROR\033[0m: \033[36mbrew\033[0m is not installed. Please install it following the instructions at \033[0;32mhttps://brew.sh\033[0m."
+      #   exit 0
+      # fi
+
+      # brew install --cask r
+      exit 0
+    fi
     exit 0
   fi
 
@@ -503,6 +519,14 @@ function install() {
     if [[ $R_VERSION != "devel" && $ARG_FORCE != 1 && $(test -d /opt/R/$R_VERSION-arm64/ && echo "true" || echo "false") == "true" ]]; then
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
+    fi
+
+    # check if rosetta is available when running on arm
+    if [[ $arch == "arm64" ]]; then
+      rosetta_pid=$(pgrep oahd)
+      if [[ -z "$rosetta_pid" ]]; then
+        echo -e "The use of x86_64 R versions on arm64 Macs requires Rosetta2 to be installed. To do so, run \033[36msoftwareupdate --install-rosetta --agree-to-license\033[0m."
+      fi
     fi
 
     # if R is not installed at all yet, create frameworks dir
