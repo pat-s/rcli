@@ -880,10 +880,6 @@ function rcli() {
     list
     exit 0
 
-  elif [[ $1 == "get" ]]; then
-    get
-    exit 0
-
   else
     showInfo
     exit 0
