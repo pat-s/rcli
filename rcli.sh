@@ -457,7 +457,7 @@ function install() {
 
       exit 0
 
-    elif [[ $(lsb_release -si) == "CentOS" ]]; then
+    elif [[ $(lsb_release -si) == "Rocky" ]]; then
 
       if [[ $R_VERSION =~ dev ]]; then
         R_VERSION="devel"
