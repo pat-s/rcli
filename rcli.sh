@@ -831,14 +831,16 @@ function install_from_source() {
 
 function rcli() {
 
-  ### EXAMPLES
-  # shc -f rcli.sh && mv rcli.sh.x /opt/homebrew/bin/rcli && chmod +x /opt/homebrew/bin/rcli && rcli install 4.1.1 --arch x86_64
-
   # from https://stackoverflow.com/a/61055114/4185785
   parseArguments "${@}"
 
   R_VERSION=$2
   arch=$(uname -m)
+
+  if [[ $1 != "list" && $1 != "ls" && $1 != "install" && $1 != "switch" ]]; then
+    echo -e "\033[0;31mERROR\033[0m: Unknown subcommand"
+    exit 1
+  fi
 
   if [[ $1 != "list" && $1 != "ls" && $R_VERSION == "" ]]; then
     echo "Passing an R version (or alias) is required."
