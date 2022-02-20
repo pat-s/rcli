@@ -67,7 +67,7 @@ rcli switch 4.1.0 --arch x86_64
 
 rcli install 4.0.2 --force
 
-rcli list
+rcli list/ls
 
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
