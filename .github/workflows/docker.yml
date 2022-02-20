@@ -23,16 +23,16 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Build Centos8 Image
+      - name: Build rockylinux8 Image
         id: buildAndPushImage
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
-          repository_name: "centos8-rcli"
+          repository_name: "rockylinux8-rcli"
           user_name: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           image_version: "latest"
-          docker_file: "docker/centos8/Dockerfile"
+          docker_file: "docker/rockylinux8/Dockerfile"
 
       - name: Build Centos7 Image
         id: buildAndPushImage

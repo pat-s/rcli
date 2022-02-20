@@ -37,17 +37,17 @@ jobs:
           path: /tmp/test-results/out.txt
           destination: artifact-file
 
-  centos8:
+  rockylinux8:
     environment:
       TZ: Europe/Zurich
     docker:
-      - image: pats22/centos8-rcli
+      - image: pats22/rockylinux8-rcli
     steps:
       - checkout
 
       - run:
           name: Tests
-          command: bash tests/centos8/test-centos8.sh
+          command: bash tests/rockylinux8/test-rockylinux8.sh
 
       - store_artifacts:
           path: /tmp/test-results/out.txt
@@ -92,7 +92,7 @@ workflows:
           # post-steps:
           #   - codecov/upload:
           #     file: coverage/codecov-result.json
-      - centos8
+      - rockylinux8
           # post-steps:
           #   - codecov/upload:
           #     file: coverage/codecov-result.json
@@ -111,5 +111,5 @@ workflows:
       - ubuntu-20-04
       - ubuntu-21-10
       - fedora
-      - centos8
+      - rockylinux8
       - centos7
