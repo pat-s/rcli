@@ -513,6 +513,20 @@ function install() {
 
     rm /tmp/R-${R_VERSION}.pkg
 
+    # TODO: create correct paths for other R versions
+    # TODO: put into function
+    # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
+    if [[ $R4x == -1 ]]; then
+
+      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
+        read -r
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          mkdir -p $HOME/Library/R/$R_CUT/library
+        fi
+      fi
+    fi
+
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     # prevent users from reinstalling an R version that already exists
@@ -863,12 +877,14 @@ function rcli() {
   if [[ $1 == "install" ]]; then
     arm_avail=$(version_compare $R_VERSION 4.0.6)
     R3x="$(version_compare $R_VERSION 3.6.4)"
+    R4x="$(version_compare $R_VERSION 4.1.0)"
     install
     exit 0
 
   elif [[ $1 == "switch" ]]; then
     arm_avail=$(version_compare $R_VERSION 4.0.6)
     R3x="$(version_compare $R_VERSION 3.6.4)"
+    R4x="$(version_compare $R_VERSION 4.1.0)"
     switch
     exit 0
 
