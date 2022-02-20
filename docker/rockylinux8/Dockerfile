@@ -1,4 +1,6 @@
-FROM centos:8
+FROM rockylinux:8
+
+ENV OS_IDENTIFIER centos-8
 
 RUN yum -y --setopt=tsflags=nodocs install epel-release yum-utils && \
 	yum -y config-manager --set-enabled powertools && \
