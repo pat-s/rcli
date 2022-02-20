@@ -30,7 +30,7 @@ Usage: rcli [-h] [-v] [subcommand] <R version> [--arch ARCHITECTURE] [--force]
 Available commands:
     install     Install an R version
     switch      Switch between installed R versions
-    list        List installed R versions
+    list        List installed R versions or user libraries (r_versions | user_libs)
 
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
@@ -653,21 +653,30 @@ function install() {
 
 function list() {
 
-  if [[ $(uname) == "Linux" ]]; then
+  if [[ $R_VERSION == "user_libs" ]]; then
+    echo -e "R user libraries:"
+    ls -d ~/Library/R/*/* | sort
+  fi
 
-    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+  if [[ -z $R_VERSION || $R_VERSION == "r_versions" ]]; then
+
+    if [[ $(uname) == "Linux" ]]; then
+
+      if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+
+        echo -e "Installed R versions:"
+
+        ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
+
+      fi
+
+    elif [[ $(uname) == "Darwin" ]]; then
 
       echo -e "Installed R versions:"
 
-      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
-
+      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
     fi
 
-  elif [[ $(uname) == "Darwin" ]]; then
-
-    echo -e "Installed R versions:"
-
-    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
   fi
 
 }
@@ -869,6 +878,10 @@ function rcli() {
 
   elif [[ $1 == "ls" ]]; then
     list
+    exit 0
+
+  elif [[ $1 == "get" ]]; then
+    get
     exit 0
 
   else
