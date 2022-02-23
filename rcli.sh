@@ -160,30 +160,34 @@ function formatArgument() {
 
 function check_user_library() {
 
-  # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
-  if [[ $R4x == -1 ]]; then
+  echo "$RCLI_ASK_USER_LIB"
+  # if [[ $RCLI_QUIET != "true" && -z RCLI_ASK_USER_LIB ]]; then
+  if [[ $RCLI_QUIET != "true" || $RCLI_ASK_USER_LIB != "false" ]]; then
+    # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
+    if [[ $R4x == -1 ]]; then
 
-    if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-      echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
-      read -r
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        mkdir -p $HOME/Library/R/$R_CUT/library
+      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
+        read -r
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          mkdir -p $HOME/Library/R/$R_CUT/library
+        fi
       fi
-    fi
-  elif [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
-    if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-      echo -e "No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
-      read -r
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+    elif [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
+      if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
+        read -r
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+        fi
       fi
-    fi
-  else
-    if [[ $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-      echo -e "No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
-      read -r
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        mkdir -p $HOME/Library/R/arm64/$R_CUT/library
+    else
+      if [[ $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
+        read -r
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          mkdir -p $HOME/Library/R/arm64/$R_CUT/library
+        fi
       fi
     fi
   fi
@@ -198,8 +202,6 @@ function switch() {
   else
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
-
-  echo $R_CUT
 
   if [[ $(uname) == "Linux" ]]; then
 
@@ -445,7 +447,9 @@ function install() {
 
         codename=$(lsb_release -sr)
 
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+        fi
         wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
         sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
         sudo apt-get -y -f install
@@ -473,7 +477,9 @@ function install() {
 
       codename=$(lsb_release -sr)
 
-      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+      fi
       wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
       sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
       rm r-${R_VERSION}_1_amd64.deb
@@ -492,7 +498,9 @@ function install() {
 
       codename=$(lsb_release -sr | cut -c 1)
 
-      echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
+      fi
       wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
       sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
       rm R-${R_VERSION}-1-1.x86_64.rpm
@@ -510,11 +518,15 @@ function install() {
   fi
 
   if [[ $ARG_ARCH == "x86_64" ]]; then
-    echo -e "→ Downloading x86_64 installer because \033[36m--arch x86_64\033[0m was set."
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ Downloading x86_64 installer because \033[36m--arch x86_64\033[0m was set."
+    fi
   fi
 
   if [[ $arm_avail != 1 && $ARG_ARCH != "x86_64" ]]; then
-    echo -e "→ No arm installer available for this R version. Downloading \033[36mx86_64\033[0m version instead."
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ No arm installer available for this R version. Downloading \033[36mx86_64\033[0m version instead."
+    fi
   fi
 
   # this means the request R version was smaller than 3.6.3
@@ -526,7 +538,9 @@ function install() {
       exit 0
     fi
 
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
+    fi
     curl -s https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
 
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
@@ -586,13 +600,17 @@ function install() {
 
     if [[ $R_VERSION =~ dev ]]; then
       R_VERSION="devel"
-      echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
+      fi
 
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     else
-      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg\033[0m"
+      fi
       curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     fi
 
@@ -634,13 +652,17 @@ function install() {
 
     if [[ $R_VERSION =~ dev ]]; then
       R_VERSION="devel"
-      echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
+      fi
 
       R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
     else
-      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg\033[0m"
+      fi
       curl -s https://cran.r-project.org/bin/macosx/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
     fi
 
@@ -814,7 +836,9 @@ function install_from_source() {
 
   if [[ $R_VERSION =~ dev ]]; then
     R_VERSION="devel"
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
+    fi
 
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     curl -s -o R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
@@ -822,7 +846,9 @@ function install_from_source() {
     cd R-devel
   else
     R_BRANCH=$(echo $R_VERSION | cut -c 1)
-    echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
+    fi
     wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
     tar -xf R-${R_VERSION}.tar.gz
     cd R-${R_VERSION}
