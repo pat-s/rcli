@@ -158,6 +158,38 @@ function formatArgument() {
   echo "${ARGUMENT}"
 }
 
+function check_user_library() {
+
+  # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
+  if [[ $R4x == -1 ]]; then
+
+    if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+      echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
+      read -r
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        mkdir -p $HOME/Library/R/$R_CUT/library
+      fi
+    fi
+  elif [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
+    if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+      echo -e "No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
+      read -r
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+      fi
+    fi
+  else
+    if [[ $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+      echo -e "No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
+      read -r
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        mkdir -p $HOME/Library/R/arm64/$R_CUT/library
+      fi
+    fi
+  fi
+
+}
+
 function switch() {
 
   if [[ $R_VERSION =~ dev ]]; then
@@ -166,6 +198,8 @@ function switch() {
   else
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
+
+  echo $R_CUT
 
   if [[ $(uname) == "Linux" ]]; then
 
@@ -237,6 +271,8 @@ function switch() {
 
       # need 777 permissions
       sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      check_user_library
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
@@ -311,12 +347,6 @@ function switch() {
       exit 0
     fi
 
-    if [[ $currentArch == "arm64" ]]; then
-      CURRENT_R_VERSION_ARCH=$currentR-arm64
-    else
-      CURRENT_R_VERSION_ARCH=$currentR
-    fi
-
     # only backup if the syslib contains user packages
     SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
 
@@ -339,18 +369,20 @@ function switch() {
 
       TARGET_R_VERSION_ARCH=$R_VERSION
       TARGET_R_CUT_ARCH=$R_CUT
-      if [[ $(arch) == "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
-      fi
+      # if [[ $(arch) == "arm64" ]]; then
+      #   TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+      #   TARGET_R_CUT_ARCH=$R_CUT-arm64
+      # fi
       # override with user preference
-      if [[ $ARG_ARCH == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
+      # if [[ $ARG_ARCH == "x86_64" ]]; then
+      TARGET_R_VERSION_ARCH=$R_VERSION
+      TARGET_R_CUT_ARCH=$R_CUT
+      # fi
 
       # need 777 permissions
       sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      check_user_library
 
       ### restore syslib from target version if it exists
       # only restore if R_VERSION has a syslib-bak
@@ -374,18 +406,11 @@ function switch() {
 
       TARGET_R_VERSION_ARCH=$R_VERSION
       TARGET_R_CUT_ARCH=$R_CUT
-      if [[ $(arch) == "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
-      fi
-      # override with user preference
-      if [[ $ARG_ARCH == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
 
       # need 777 permissions
       sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
+
+      check_user_library
 
       # only restore if R_VERSION has a syslib-bak
       if [[ $(test -d /opt/R/$R_VERSION/syslib-bak && echo "true" || echo "false") == "true" ]]; then
@@ -513,19 +538,7 @@ function install() {
 
     rm /tmp/R-${R_VERSION}.pkg
 
-    # TODO: create correct paths for other R versions
-    # TODO: put into function
-    # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
-    if [[ $R4x == -1 ]]; then
-
-      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
-        read -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-          mkdir -p $HOME/Library/R/$R_CUT/library
-        fi
-      fi
-    fi
+    check_user_library
 
   elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
@@ -550,6 +563,7 @@ function install() {
 
     currentR=$(echo $(R --version) | cut -c 11-15)
     # detect if current R is r-devel
+    # 'velop' is correct here
     if [[ $currentR == "velop" ]]; then
       currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
     fi
@@ -653,6 +667,8 @@ function install() {
     sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}.pkg
+
+    check_user_library
 
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
