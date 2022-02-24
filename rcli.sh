@@ -736,13 +736,8 @@ function list() {
 
     if [[ $(uname) == "Linux" ]]; then
 
-      if [[ $(lsb_release -si) == "Ubuntu" ]]; then
-
-        echo -e "Installed R versions:"
-
-        ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
-
-      fi
+      echo -e "Installed R versions:"
+      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
 
     elif [[ $(uname) == "Darwin" ]]; then
 

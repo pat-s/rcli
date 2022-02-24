@@ -13,7 +13,7 @@ Reading state information...
 [1] "R version 3.6.3 (2020-02-29)"
 [1] "R version 4.1.2 (2021-11-01)"
 [1] "R version 4.0.5 (2021-03-31)"
-→ Removing R version 4.1.2 from path /opt/R/4.1.2
+→ Removing R version [36m4.1.2[0m from path [36m/opt/R/4.1.2[0m
 Installed R versions:
-- 3.6.3
-- 4.0.5
+3.6.3
+4.0.5
