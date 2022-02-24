@@ -9,3 +9,6 @@ DEBUG: Switching: -> x86
 DEBUG: n(packages) in syslib: 32
 DEBUG: switch(): Backing up system library to /opt/R/4.0.5/syslib-bak
 DEBUG: switch(): Restoring existing syslib from /opt/R/4.1.2/syslib-bak into /Library/Frameworks/R.framework/Versions/4.1/Resources/library
+→ Removing R version 4.1.0 (arm64) from path /opt/R/4.1.0-arm64
+Installed R versions:
+- 4.0.5
