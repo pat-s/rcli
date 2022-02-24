@@ -509,6 +509,27 @@ function install() {
 
       exit 0
 
+    elif [[ $(lsb_release -si) == "CentOS" ]]; then
+
+      if [[ $R_VERSION =~ dev ]]; then
+        R_VERSION="devel"
+        install_from_source
+        exit 0
+      fi
+
+      codename=$(lsb_release -sr | cut -c 1)
+
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
+      fi
+      wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
+      sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
+      rm R-${R_VERSION}-1-1.x86_64.rpm
+      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+      exit 0
+
     else
 
       install_from_source
