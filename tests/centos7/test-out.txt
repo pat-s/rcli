@@ -3,3 +3,6 @@
 → Downloading [36mhttps://cdn.rstudio.com/r/centos-7/pkgs/R-3.6.3-1-1.x86_64.rpm[0m
 [1] "R version 3.6.3 (2020-02-29)"
 [1] "R version 4.1.2 (2021-11-01)"
+→ Removing R version 4.1.2 from path /opt/R/4.1.2
+Installed R versions:
+- 3.6.3
