@@ -737,9 +737,6 @@ function list() {
     echo -e "Installed R versions:"
     ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
 
-    echo -e "Installed R versions:"
-    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
-
   fi
 
 }
