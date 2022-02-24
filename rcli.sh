@@ -933,7 +933,7 @@ function remove() {
   if [[ $(uname) == "Linux" ]]; then
 
     if [[ $RCLI_QUIET != "true" ]]; then
-      echo -e "→ Removing R version \033[36m$R_VERSION (x86_64)\033[0m."
+      echo -e "→ Removing R version \033[36m$R_VERSION033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
       rm -rf /opt/R/$R_VERSION
     fi
 
