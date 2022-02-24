@@ -734,17 +734,11 @@ function list() {
 
   if [[ -z $R_VERSION || $R_VERSION == "r_versions" ]]; then
 
-    if [[ $(uname) == "Linux" ]]; then
+    echo -e "Installed R versions:"
+    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
 
-      echo -e "Installed R versions:"
-      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
-
-    elif [[ $(uname) == "Darwin" ]]; then
-
-      echo -e "Installed R versions:"
-
-      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
-    fi
+    echo -e "Installed R versions:"
+    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
 
   fi
 
