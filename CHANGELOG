@@ -1,3 +1,7 @@
+rcli (0.7.0-1) unstable; urgency=medium
+
+  * Add `rcli remove` subcommand
+
 rcli (0.6.0-1) unstable; urgency=medium
 
   * rcli now tries to be more helpful to first time users by offering to install R using the CRAN installer if no R CRAN installation is detected.
