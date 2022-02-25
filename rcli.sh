@@ -31,6 +31,7 @@ Available commands:
     install     Install an R version
     switch      Switch between installed R versions
     list        List installed R versions or user libraries (r_versions | user_libs)
+    remove      Remove an installed R version
 
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
@@ -68,6 +69,8 @@ rcli switch 4.1.0 --arch x86_64
 rcli install 4.0.2 --force
 
 rcli list/ls
+
+rcli remove 4.1.1
 
 EOF
     # EOF is found above and hence cat command stops reading. This is equivalent to echo but much neater when printing out.
@@ -160,8 +163,6 @@ function formatArgument() {
 
 function check_user_library() {
 
-  echo "$RCLI_ASK_USER_LIB"
-  # if [[ $RCLI_QUIET != "true" && -z RCLI_ASK_USER_LIB ]]; then
   if [[ $RCLI_QUIET != "true" || $RCLI_ASK_USER_LIB != "false" ]]; then
     # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
     if [[ $R4x == -1 ]]; then
@@ -733,22 +734,8 @@ function list() {
 
   if [[ -z $R_VERSION || $R_VERSION == "r_versions" ]]; then
 
-    if [[ $(uname) == "Linux" ]]; then
-
-      if [[ $(lsb_release -si) == "Ubuntu" ]]; then
-
-        echo -e "Installed R versions:"
-
-        ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$"
-
-      fi
-
-    elif [[ $(uname) == "Darwin" ]]; then
-
-      echo -e "Installed R versions:"
-
-      ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
-    fi
+    echo -e "Installed R versions:"
+    ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /"
 
   fi
 
@@ -915,6 +902,96 @@ function install_from_source() {
   exit 0
 }
 
+function remove() {
+
+  R_CUT=$(echo $R_VERSION | cut -c 1-3)
+  currentR=$(echo $(R --version) | cut -c 11-15)
+  currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+
+  if [[ ($(uname) == "Darwin" && $currentR == $R_VERSION) ]]; then
+
+    if [[ $currentArch == "arm64" && $ARG_ARCH != "x86_64" ]]; then
+
+      echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
+    fi
+  fi
+
+  if [[ $(uname) == "Linux" ]]; then
+
+    if [[ $RCLI_QUIET != "true" ]]; then
+      echo -e "→ Removing R version \033[36m$R_VERSION\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
+      rm -rf /opt/R/$R_VERSION
+    fi
+
+  else
+
+    if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH == "x86_64") ]]; then
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Removing R version \033[36m$R_VERSION (x86_64)\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
+      fi
+
+      # check if syslib contains user packages and warn
+      SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
+
+      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            sudo rm -rf /opt/R/$R_VERSION
+            exit 0
+          fi
+        fi
+      fi
+
+      sudo rm -rf /opt/R/$R_VERSION
+
+    elif [[ ($arm_avail != 1 && $ARG_ARCH != "x86_64") ]]; then
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Removing R version \033[36m$R_VERSION\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
+      fi
+
+      # check if syslib contains user packages and warn
+      SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
+
+      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            sudo rm -rf /opt/R/$R_VERSION
+            exit 0
+          fi
+        fi
+      fi
+
+      sudo rm -rf /opt/R/$R_VERSION
+
+    elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Removing R version \033[36m$R_VERSION (arm64)\033[0m from path \033[36m/opt/R/$R_VERSION-arm64\033[0m"
+      fi
+
+      # check if syslib contains user packages and warn
+      SYSLIB=/opt/R/$R_VERSION-arm64/$R_CUT-arm64/Resources/library
+
+      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            sudo rm -rf /opt/R/$R_VERSION-arm64
+            exit 0
+          fi
+        fi
+      fi
+      sudo rm -rf /opt/R/$R_VERSION-arm64
+    fi
+
+  fi
+
+}
+
 function rcli() {
 
   # from https://stackoverflow.com/a/61055114/4185785
@@ -923,7 +1000,7 @@ function rcli() {
   R_VERSION=$2
   arch=$(uname -m)
 
-  if [[ $1 != "list" && $1 != "ls" && $1 != "install" && $1 != "switch" ]]; then
+  if [[ $1 != "list" && $1 != "ls" && $1 != "install" && $1 != "switch" && $1 != "remove" ]]; then
     echo -e "\033[0;31mERROR\033[0m: Unknown subcommand"
     exit 1
   fi
@@ -957,6 +1034,11 @@ function rcli() {
 
   elif [[ $1 == "ls" ]]; then
     list
+    exit 0
+
+  elif [[ $1 == "remove" ]]; then
+    arm_avail=$(version_compare $R_VERSION 4.0.6)
+    remove
     exit 0
 
   else
