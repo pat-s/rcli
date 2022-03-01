@@ -24,7 +24,7 @@ jobs:
         run: ./gradlew build
 
       - name: Build rockylinux8 Image
-        id: buildAndPushImage
+        id: buildAndPushImage-rocky
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
@@ -35,7 +35,7 @@ jobs:
           docker_file: "docker/rockylinux8/Dockerfile"
 
       - name: Build Centos7 Image
-        id: buildAndPushImage
+        id: buildAndPushImage-centos7
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
@@ -46,7 +46,7 @@ jobs:
           docker_file: "docker/centos7/Dockerfile"
 
       - name: Build Ubuntu 20.04 Image
-        id: buildAndPushImage
+        id: buildAndPushImage-ubuntu-20
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
@@ -57,7 +57,7 @@ jobs:
           docker_file: "docker/ubuntu20.04/Dockerfile"
 
       - name: Build Ubuntu 21.10 Image
-        id: buildAndPushImage
+        id: buildAndPushImage-ubuntu-21
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
@@ -68,7 +68,7 @@ jobs:
           docker_file: "docker/ubuntu21.10/Dockerfile"
 
       - name: Build Fedora Image
-        id: buildAndPushImage
+        id: buildAndPushImage-fedore
         uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
           registry_url: "docker.io"
