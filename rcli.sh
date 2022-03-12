@@ -736,9 +736,16 @@ function install() {
 
 function list() {
 
-  if [[ $R_VERSION == "user_libs" ]]; then
+  if [[ $(uname) == "Darwin" ]]; then
+
+    if [[ $R_VERSION == "user_libs" ]]; then
+      echo -e "R user libraries:"
+      ls -d ~/Library/R/*/* | sort | sed "s/^/- /"
+    fi
+  fi
+  if [[ $(uname) == "Linux" ]]; then
     echo -e "R user libraries:"
-    ls -d ~/Library/R/*/* | sort
+    ls -d ~/R/x86_64-pc-linux-gnu-library/* | sort | sed "s/^/- /"
   fi
 
   if [[ -z $R_VERSION || $R_VERSION == "r_versions" ]]; then
