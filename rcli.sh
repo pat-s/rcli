@@ -744,8 +744,11 @@ function list() {
     fi
   fi
   if [[ $(uname) == "Linux" ]]; then
-    echo -e "R user libraries:"
-    ls -d ~/R/x86_64-pc-linux-gnu-library/* | sort | sed "s/^/- /"
+    if [[ $R_VERSION == "user_libs" ]]; then
+      echo -e "R user libraries:"
+      echo -e "R user libraries:"
+      ls -d ~/R/x86_64-pc-linux-gnu-library/* | sort | sed "s/^/- /"
+    fi
   fi
 
   if [[ -z $R_VERSION || $R_VERSION == "r_versions" ]]; then
