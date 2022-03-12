@@ -89,7 +89,7 @@ if [[ $(uname) == "Darwin" ]]; then
     exit 0
   fi
 
-  # if R is not installed at all yet, create frameworks dir
+  # macOS: Test if R.framework exists and offer to create it
   if [[ $(test -d /Library/Frameworks/R.framework && echo "true" || echo "false") == "false" ]]; then
     echo -e "\033[36mrcli\033[0m requires R to be installed - which is not the case it seems. The official CRAN R installer from \033[0;32mhttps://cran.r-project.org\033[0m must be used."
     echo -e "Do you want \033[36mrcli\033[0m to install R 4.0.5 (x86_64) for you now [Y/y]? (You can install more recent R versions via \033[36mrcli install <version>\033[0m afterwards)"
@@ -98,14 +98,30 @@ if [[ $(uname) == "Darwin" ]]; then
       echo -e "-> Installing \033[36mR 4.0.5\033[0m"
       curl -s https://cran.r-project.org/bin/macosx/base/R-4.0.5.pkg -o /tmp/R-4.0.5.pkg
       sudo installer -pkg /tmp/R-4.0.5.pkg -target / >/dev/null
+      exit 0
+    fi
+    exit 0
+  fi
 
-      # # check if brew is available
-      # if [[ $(which brew) == "" ]]; then
-      #   echo -e "\033[0;31mERROR\033[0m: \033[36mbrew\033[0m is not installed. Please install it following the instructions at \033[0;32mhttps://brew.sh\033[0m."
-      #   exit 0
-      # fi
+  # assert R executable in general
+  if [[ $(which R && echo "true" || echo "false") == "false" ]]; then
+    echo -e "\033[0;31mERROR\033[0m: R does not seem to be installed or the existing installation is not functional. R needs to be reinstalled."
 
-      # brew install --cask r
+    echo -e "Do you want \033[36mrcli\033[0m to install R 4.0.5 (x86_64) for you now [Y/y]? (You can install more recent R versions via \033[36mrcli install <version>\033[0m afterwards)"
+    read -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo -e "-> Installing \033[36mR 4.0.5\033[0m"
+
+      if [[ $(uname) == "Darwin" ]]; then
+        curl -s https://cran.r-project.org/bin/macosx/base/R-4.0.5.pkg -o /tmp/R-4.0.5.pkg
+        sudo installer -pkg /tmp/R-4.0.5.pkg -target / >/dev/null
+        exit 0
+      fi
+      if [[ $(uname) == "Linux" ]]; then
+        R_VERSION=4.0.5
+        install
+        exit 0
+      fi
       exit 0
     fi
     exit 0

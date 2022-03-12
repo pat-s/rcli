@@ -1,3 +1,10 @@
+
+rcli (0.7.1-1) unstable; urgency=medium
+
+  * `rcli` tries to catch early if no valid R installation exists and if so, offers to installs R 4.0.5
+  * Fixed an error with the `release` alias
+
+
 rcli (0.7.0-1) unstable; urgency=medium
 
   * Add `rcli remove` subcommand
