@@ -197,13 +197,6 @@ function check_user_library() {
 
 function switch() {
 
-  if [[ $R_VERSION =~ dev ]]; then
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
-  else
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
-  fi
-
   if [[ $(uname) == "Linux" ]]; then
 
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
@@ -1012,6 +1005,15 @@ function rcli() {
 
   if [[ $R_VERSION =~ rel ]]; then
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    if [[ $ARG_DEBUG == 1 ]]; then
+      echo $R_VERSION
+    fi
+  fi
+  if [[ $R_VERSION =~ dev ]]; then
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
+  else
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
 
   if [[ $1 == "install" ]]; then
