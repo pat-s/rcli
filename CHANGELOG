@@ -1,4 +1,8 @@
 
+rcli (0.7.2-1) unstable; urgency=medium
+
+  * Same as 0.7.1 - forgot to bump version
+
 rcli (0.7.1-1) unstable; urgency=medium
 
   * `rcli` tries to catch early if no valid R installation exists and if so, offers to installs R 4.0.5
