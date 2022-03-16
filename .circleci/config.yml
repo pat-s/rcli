@@ -109,7 +109,7 @@ workflows:
                 - main
     jobs:
       - ubuntu-20-04
-      - ubuntu-21-10
+      # - ubuntu-21-10
       - fedora
       - rockylinux8
       - centos7
