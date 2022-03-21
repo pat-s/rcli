@@ -18,6 +18,9 @@ R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 ./rcli.sh install 4.0.5 >>/tmp/test-results/out.txt
 R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 
+./rcli.sh install devel >>/tmp/test-results/out.txt
+R -q -s -e "substr(R.version.string, 1, 19)" >>/tmp/test-results/out.txt
+
 ./rcli.sh remove 4.1.2 >>/tmp/test-results/out.txt
 
 ./rcli.sh ls >>/tmp/test-results/out.txt

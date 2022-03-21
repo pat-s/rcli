@@ -18,6 +18,7 @@ Building dependency tree...
 Reading state information...
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
 [1] "R version 4.0.5 (2021-03-31)"
+[1] "R Under development"
 → Removing R version [36m4.1.2[0m from path [36m/opt/R/4.1.2[0m
 Installed R versions:
 - 3.6.3

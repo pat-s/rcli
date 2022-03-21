@@ -1029,15 +1029,13 @@ function rcli() {
     exit 0
   fi
 
+  # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
+  # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     if [[ $ARG_DEBUG == 1 ]]; then
       echo $R_VERSION
     fi
-  fi
-  if [[ $R_VERSION =~ dev ]]; then
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
-    R_CUT=$(echo $R_VERSION | cut -c 1-3)
   else
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
