@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7
-      - name: Install Ruby dependencies
-        run: bundle install
+      # - uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: 2.7
+      # - name: Install Ruby dependencies
+      #   run: bundle install
 
       - name: Install R
         shell: bash
