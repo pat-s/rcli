@@ -233,6 +233,10 @@ function switch() {
   currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
   currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
 
+  if [[ $ARG_DEBUG == 1 ]]; then
+    echo "currentR: $currentR"
+  fi
+
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
 
     exists=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
@@ -343,8 +347,6 @@ function switch() {
       echo "DEBUG: Switching: -> x86"
     fi
 
-    CURRENT_R_VERSION_ARCH=$currentR
-
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
     if [[ $ARG_ARCH == "x86_64" ]]; then
 
@@ -365,10 +367,26 @@ function switch() {
     SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
 
     if [[ $ARG_DEBUG == 1 ]]; then
-      echo -e "DEBUG: n(packages) in syslib: $(ls $SYSLIB | wc -l | xargs)"
+      echo -e "DEBUG: switch(): n(packages) in syslib: $(ls $SYSLIB | wc -l | xargs)"
     fi
 
     if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+
+      CURRENT_R_VERSION_ARCH=$currentR
+
+      if [[ $(arch) == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+      if [[ $(arch) == "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+      # override with user preference
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
 
       if [[ $ARG_DEBUG == 1 ]]; then
         echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
