@@ -20,6 +20,7 @@ R -q -s -e "library('gam')" >>/tmp/test-results/out.txt
 
 echo -e "#### Installing R devel"
 ./rcli.sh install devel
+R -q -s -e "substr(R.version.string, 1, 19)" >>/tmp/test-results/out.txt
 
 echo -e "#### Switching devel -> 4.0.5"
 ./rcli.sh switch 4.0.5 >>/tmp/test-results/out.txt
@@ -30,3 +31,5 @@ echo -e "#### Remove R 4.1.2"
 
 echo -e "#### List installed R versions"
 ./rcli.sh ls >>/tmp/test-results/out.txt
+
+if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt) == "" ]]; then exit 0; else diff --unified tests/macos/test-out-x86.txt /tmp/test-results/out.txt && exit 1; fi
