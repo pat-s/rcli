@@ -343,6 +343,8 @@ function switch() {
       echo "DEBUG: Switching: -> x86"
     fi
 
+    CURRENT_R_VERSION_ARCH=$currentR
+
     exists=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
     if [[ $ARG_ARCH == "x86_64" ]]; then
 
