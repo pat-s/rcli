@@ -183,27 +183,31 @@ function check_user_library() {
     # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
     if [[ $R4x == -1 ]]; then
 
-      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
-        read -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-          mkdir -p $HOME/Library/R/$R_CUT/library
+      if [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
+        if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+          echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+          fi
         fi
+        exit 0
       fi
-    elif [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
-      if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
-        read -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-          mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
-        fi
-      fi
-    else
-      if [[ $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
+
+      if [[ $arm_avail == 1 && $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
         read -r
         if [[ $REPLY =~ ^[Yy]$ ]]; then
           mkdir -p $HOME/Library/R/arm64/$R_CUT/library
+        fi
+      fi
+
+    else
+      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
+        read -r
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          mkdir -p $HOME/Library/R/$R_CUT/library
         fi
       fi
     fi
@@ -407,8 +411,8 @@ function switch() {
       # fi
       # override with user preference
       # if [[ $ARG_ARCH == "x86_64" ]]; then
-      TARGET_R_VERSION_ARCH=$R_VERSION
-      TARGET_R_CUT_ARCH=$R_CUT
+      # TARGET_R_VERSION_ARCH=$R_VERSION
+      # TARGET_R_CUT_ARCH=$R_CUT
       # fi
 
       # need 777 permissions
@@ -1045,8 +1049,8 @@ function rcli() {
   fi
 
   if [[ $1 != "list" && $1 != "ls" && $R_VERSION == "" ]]; then
-    echo "Passing an R version (or alias) is required."
-    exit 0
+    echo "\033[0;31mERROR\033[0m: Passing an R version (or alias) is required."
+    exit 1
   fi
 
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
