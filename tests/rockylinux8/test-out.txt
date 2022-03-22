@@ -5,4 +5,4 @@
 [1] "R version 4.1.1 (2021-08-10)"
 → Removing R version [36m4.1.1[0m from path [36m/opt/R/4.1.1[0m
 Installed R versions:
-- 3.6.3
+- 4.1.1

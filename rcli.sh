@@ -1072,7 +1072,7 @@ function rcli() {
 
   if [[ $1 != "list" && $1 != "ls" && $R_VERSION == "" ]]; then
     echo "\033[0;31mERROR\033[0m: Passing an R version (or alias) is required."
-    exit 1
+    exit 0
   fi
 
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
