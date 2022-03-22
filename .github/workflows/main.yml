@@ -5,6 +5,9 @@ on:
   pull_request:
     branches:
     - main
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: "0 4 * * *"
 
 name: rcli-macOS-x86
 
@@ -12,17 +15,18 @@ jobs:
   test-rcli:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7
-      - name: Install Ruby dependencies
-        run: bundle install
+      # - uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: 2.7
+      # - name: Install Ruby dependencies
+      #   run: bundle install
 
       - name: Install R
         shell: bash
         run: |
+          brew remove r
           brew install --cask r
 
       - name: Tests
