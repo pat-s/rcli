@@ -14,5 +14,8 @@ DEBUG: switch(): Backing up system library to /opt/R/4.0.5/syslib-bak
 ⚠ No user library was detected for R version 4.1.2 (x86_64). Do you want [36mrcli[0m to create it for you at [36m/Users/runner/Library/R/4.1/library[0m? [Y/y]
 DEBUG: switch(): Restoring existing syslib from /opt/R/4.1.2/syslib-bak into /Library/Frameworks/R.framework/Versions/4.1/Resources/library
 [1] "R Under development"
+→ Removing R version [36m4.1.2[0m from path [36m/opt/R/4.1.2[0m
+→ Removing R version [36m4.2.0[0m from path [36m/opt/R/4.2.0[0m
+[0;31mERROR[0m: No R installation found at path [36m/opt/R/4.1.2[0m. Is [36m4.1.2 (x86_64)[0m really installed?
 Installed R versions:
 - 4.0.5

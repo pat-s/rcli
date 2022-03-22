@@ -963,15 +963,6 @@ function remove() {
     echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
   fi
 
-  # FIXME:
-  # if [[ ($(uname) == "Darwin" && $currentR == $R_VERSION) ]]; then
-
-  #   if [[ $currentArch == "arm64" && $ARG_ARCH != "x86_64" ]]; then
-
-  #     echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
-  #   fi
-  # fi
-
   if [[ $(uname) == "Linux" ]]; then
 
     if [[ $RCLI_QUIET != "true" ]]; then
@@ -1037,7 +1028,7 @@ function remove() {
 
       if [[ $(test -d /opt/R/$R_VERSION && echo "true" || echo "false") == "false" ]]; then
         echo -e "\033[0;31mERROR\033[0m: No R installation found at path \033[36m/opt/R/$R_VERSION\033[0m. Is \033[36m$R_VERSION (x86_64)\033[0m really installed?"
-        exit 1
+        exit 0
       fi
 
       if [[ $RCLI_QUIET != "true" ]]; then
