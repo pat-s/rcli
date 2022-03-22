@@ -989,27 +989,6 @@ function remove() {
 
       sudo rm -rf /opt/R/$R_VERSION
 
-    elif [[ ($arm_avail != 1 && $ARG_ARCH != "x86_64") ]]; then
-      if [[ $RCLI_QUIET != "true" ]]; then
-        echo -e "→ Removing R version \033[36m$R_VERSION\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
-      fi
-
-      # check if syslib contains user packages and warn
-      SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
-
-      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
-        if [[ $RCLI_QUIET != "true" ]]; then
-          echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
-          read -r
-          if [[ $REPLY =~ ^[Yy]$ ]]; then
-            sudo rm -rf /opt/R/$R_VERSION
-            exit 0
-          fi
-        fi
-      fi
-
-      sudo rm -rf /opt/R/$R_VERSION
-
     elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Removing R version \033[36m$R_VERSION (arm64)\033[0m from path \033[36m/opt/R/$R_VERSION-arm64\033[0m"
@@ -1029,9 +1008,30 @@ function remove() {
         fi
       fi
       sudo rm -rf /opt/R/$R_VERSION-arm64
-    fi
+    else
+      if [[ $RCLI_QUIET != "true" ]]; then
+        echo -e "→ Removing R version \033[36m$R_VERSION\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
+      fi
 
+      # check if syslib contains user packages and warn
+      SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
+
+      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            sudo rm -rf /opt/R/$R_VERSION
+            exit 0
+          fi
+        fi
+      fi
+
+      sudo rm -rf /opt/R/$R_VERSION
+    fi
   fi
+
+  exit 0
 
 }
 

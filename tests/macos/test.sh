@@ -32,4 +32,7 @@ echo -e "#### Remove R 4.1.2"
 echo -e "#### List installed R versions"
 ./rcli.sh ls >>/tmp/test-results/out.txt
 
+echo -e "#### List R versions manually"
+ls /opt/R
+
 if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt) == "" ]]; then exit 0; else diff --unified tests/macos/test-out-x86.txt /tmp/test-results/out.txt && exit 1; fi
