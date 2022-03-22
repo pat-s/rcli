@@ -1,4 +1,10 @@
 
+rcli (0.7.2-1) unstable; urgency=medium
+
+  * `rcli install dev` was broken in 0.7.1 due to a too early translation of the devel alias into the underlying R version.
+  * `remove()` now accordingly accounts for different architectures
+  * `remove()` now early exits if the version which is about to be removed does not exist on disk
+
 rcli (0.7.1-1) unstable; urgency=medium
 
   * `rcli` tries to catch early if no valid R installation exists and if so, offers to installs R 4.0.5
