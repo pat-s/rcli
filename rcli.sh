@@ -654,12 +654,14 @@ function install() {
     fi
 
     if [[ $R_VERSION =~ dev ]]; then
-      R_VERSION="devel"
+      # FIXME: R_VERSION="devel"
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
       fi
 
-      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      #FIXME:
+      # R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     else
@@ -706,12 +708,15 @@ function install() {
     fi
 
     if [[ $R_VERSION =~ dev ]]; then
-      R_VERSION="devel"
+      # FIXME:
+      # R_VERSION="devel"
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
       fi
 
-      R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      #FIXME:
+      # R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
     else
