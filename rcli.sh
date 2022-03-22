@@ -654,13 +654,10 @@ function install() {
     fi
 
     if [[ $R_VERSION =~ dev ]]; then
-      # FIXME: R_VERSION="devel"
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
       fi
 
-      #FIXME:
-      # R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
       R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
@@ -708,14 +705,10 @@ function install() {
     fi
 
     if [[ $R_VERSION =~ dev ]]; then
-      # FIXME:
-      # R_VERSION="devel"
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
       fi
 
-      #FIXME:
-      # R_VERSION=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
       R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
@@ -954,15 +947,30 @@ function remove() {
 
   R_CUT=$(echo $R_VERSION | cut -c 1-3)
   currentR=$(echo $(R --version) | cut -c 11-15)
+  # detect if current R is r-devel
+  # 'velop' is correct here
+  if [[ $currentR == "velop" ]]; then
+    currentR=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+  fi
   currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
 
-  if [[ ($(uname) == "Darwin" && $currentR == $R_VERSION) ]]; then
-
-    if [[ $currentArch == "arm64" && $ARG_ARCH != "x86_64" ]]; then
-
-      echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
-    fi
+  if [[ $R_VERSION =~ dev ]]; then
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
+
+  if [[ $R_VERSION == $currentR ]]; then
+    echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
+  fi
+
+  # FIXME:
+  # if [[ ($(uname) == "Darwin" && $currentR == $R_VERSION) ]]; then
+
+  #   if [[ $currentArch == "arm64" && $ARG_ARCH != "x86_64" ]]; then
+
+  #     echo -e "ℹ You are about to remove the currently active R version. The R version will still be usable and active after this command has finished as \033[36mrcli\033[0m does not remove the files in \033[36m/Library/Frameworks/R.framework\033[0m. To get fully rid of this R version, use \033[36mrcli switch\033[0m to switch to another version."
+  #   fi
+  # fi
 
   if [[ $(uname) == "Linux" ]]; then
 
@@ -974,6 +982,12 @@ function remove() {
   else
 
     if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH == "x86_64") ]]; then
+
+      if [[ $(test -d /opt/R/$R_VERSION && echo "true" || echo "false") == "false" ]]; then
+        echo -e "\033[0;31mERROR\033[0m: No R installation found at path \033[36m/opt/R/$R_VERSION\033[0m. Is \033[36m$R_VERSION (x86_64)\033[0m really installed?"
+        exit 1
+      fi
+
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Removing R version \033[36m$R_VERSION (x86_64)\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
       fi
@@ -995,12 +1009,18 @@ function remove() {
       sudo rm -rf /opt/R/$R_VERSION
 
     elif [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
+
+      if [[ $(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false") == "false" ]]; then
+        echo -e "\033[0;31mERROR\033[0m: No R installation found at path \033[36m/opt/R/$R_VERSION-arm64\033[0m. Is \033[36m$R_VERSION (arm64)\033[0m really installed?"
+        exit 1
+      fi
+
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Removing R version \033[36m$R_VERSION (arm64)\033[0m from path \033[36m/opt/R/$R_VERSION-arm64\033[0m"
       fi
 
       # check if syslib contains user packages and warn
-      SYSLIB=/opt/R/$R_VERSION-arm64/$R_CUT-arm64/Resources/library
+      SYSLIB=/opt/R/$R_VERSION-arm64/$R_CUT/Resources/library
 
       if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
         if [[ $RCLI_QUIET != "true" ]]; then
@@ -1014,6 +1034,12 @@ function remove() {
       fi
       sudo rm -rf /opt/R/$R_VERSION-arm64
     else
+
+      if [[ $(test -d /opt/R/$R_VERSION && echo "true" || echo "false") == "false" ]]; then
+        echo -e "\033[0;31mERROR\033[0m: No R installation found at path \033[36m/opt/R/$R_VERSION\033[0m. Is \033[36m$R_VERSION (x86_64)\033[0m really installed?"
+        exit 1
+      fi
+
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Removing R version \033[36m$R_VERSION\033[0m from path \033[36m/opt/R/$R_VERSION\033[0m"
       fi

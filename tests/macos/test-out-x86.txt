@@ -16,4 +16,3 @@ DEBUG: switch(): Restoring existing syslib from /opt/R/4.1.2/syslib-bak into /Li
 [1] "R Under development"
 Installed R versions:
 - 4.0.5
-- 4.2.0
