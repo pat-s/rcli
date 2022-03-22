@@ -1,4 +1,8 @@
 
+rcli (0.7.3-1) unstable; urgency=medium
+
+  * `switch()` now works as expected (again) on macOS arm
+
 rcli (0.7.2-1) unstable; urgency=medium
 
   * `rcli install dev` was broken in 0.7.1 due to a too early translation of the devel alias into the underlying R version.
