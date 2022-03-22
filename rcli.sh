@@ -238,7 +238,8 @@ function switch() {
   currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
 
   if [[ $ARG_DEBUG == 1 ]]; then
-    echo "currentR: $currentR"
+    echo "DEBUG: current R: $currentR"
+    echo "DEBUG: R_VERSION: $R_VERSION"
   fi
 
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
@@ -313,17 +314,8 @@ function switch() {
       sudo cp -fR /opt/R/$R_VERSION-arm64/ /Library/Frameworks/R.framework/Versions 2>/dev/null
       sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
 
-      TARGET_R_VERSION_ARCH=$R_VERSION
-      TARGET_R_CUT_ARCH=$R_CUT
-      if [[ $(arch) == "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
-      fi
-      # override with user preference
-      if [[ $ARG_ARCH == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
+      TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+      TARGET_R_CUT_ARCH=$R_CUT-arm64
 
       # need 777 permissions
       sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
@@ -405,15 +397,6 @@ function switch() {
 
       TARGET_R_VERSION_ARCH=$R_VERSION
       TARGET_R_CUT_ARCH=$R_CUT
-      # if [[ $(arch) == "arm64" ]]; then
-      #   TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-      #   TARGET_R_CUT_ARCH=$R_CUT-arm64
-      # fi
-      # override with user preference
-      # if [[ $ARG_ARCH == "x86_64" ]]; then
-      # TARGET_R_VERSION_ARCH=$R_VERSION
-      # TARGET_R_CUT_ARCH=$R_CUT
-      # fi
 
       # need 777 permissions
       sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
@@ -1079,6 +1062,7 @@ function rcli() {
   # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then
     R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_CUT=$(echo $R_VERSION | cut -c 1-3)
     if [[ $ARG_DEBUG == 1 ]]; then
       echo $R_VERSION
     fi
@@ -1094,6 +1078,12 @@ function rcli() {
     exit 0
 
   elif [[ $1 == "switch" ]]; then
+
+    if [[ $R_VERSION =~ dev ]]; then
+      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      R_CUT=$(echo $R_VERSION | cut -c 1-3)
+    fi
+
     arm_avail=$(version_compare $R_VERSION 4.0.6)
     R3x="$(version_compare $R_VERSION 3.6.4)"
     R4x="$(version_compare $R_VERSION 4.1.0)"

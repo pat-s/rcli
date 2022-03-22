@@ -26,8 +26,14 @@ echo -e "#### Switching devel -> 4.0.5"
 ./rcli.sh switch 4.0.5 >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 
+echo -e "#### Switching 4.0.5 -> devel"
+./rcli.sh switch dev >>/tmp/test-results/out.txt
+
 echo -e "#### Remove R 4.1.2"
 ./rcli.sh remove 4.1.2 >>/tmp/test-results/out.txt
+
+echo -e "#### Install rel"
+./rcli.sh install rel >>/tmp/test-results/out.txt
 
 echo -e "#### Remove R devel"
 ./rcli.sh remove dev >>/tmp/test-results/out.txt
