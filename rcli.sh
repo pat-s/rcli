@@ -625,7 +625,9 @@ function install() {
 
     ### first time users
     # checks if /opt/R/ contains any R installations
-    firstTime=$(ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /")
+    if [[ $(test -d /opt/R && echo "true" || echo "false") == "true" ]]; then
+      firstTime=$(ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /")
+    fi
     # checks if the user has installed any custom libraries into the system lib
     if [[ $currentR != $R_VERSION && ${#firstTime} == 0 && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
       echo -e "⚠️  ⚠️  ⚠️\nHey there! It seems you are using \033[36mrcli\033[0m for the first time and trying to install an R version different from the one you are currently running. This is a problem if you do not make use of a user library (which it seems like) and instead install all your packages into your system library (which is the unfortunate default on macOS, so don't worry about having done anything wrong). To prevent package loss, please first run \033[36mrcli install $currentR\033[0m so your existing packages are retained.\n"
@@ -969,7 +971,7 @@ function remove() {
       # check if syslib contains user packages and warn
       SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
 
-      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+      if [[ $(test -d SYSLIB) && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
         if [[ $RCLI_QUIET != "true" ]]; then
           echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
           read -r
@@ -996,7 +998,7 @@ function remove() {
       # check if syslib contains user packages and warn
       SYSLIB=/opt/R/$R_VERSION-arm64/$R_CUT/Resources/library
 
-      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+      if [[ $(test -d SYSLIB) && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
         if [[ $RCLI_QUIET != "true" ]]; then
           echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
           read -r
@@ -1021,7 +1023,7 @@ function remove() {
       # check if syslib contains user packages and warn
       SYSLIB=/opt/R/$R_VERSION/$R_CUT/Resources/library
 
-      if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+      if [[ $(test -d SYSLIB) && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
         if [[ $RCLI_QUIET != "true" ]]; then
           echo -e "⚠ Caution: \033[36mrcli\033[0 detected that the system library of R $R_VERSION contains additional R packages. Continuing will remove these R packages as well. Do you still want to continue? [Y/y]"
           read -r
