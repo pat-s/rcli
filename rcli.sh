@@ -1067,6 +1067,11 @@ function rcli() {
     exit 0
   fi
 
+  if [[ $R_VERSION =~ arm ]]; then
+    echo -e "\033[0;31mERROR\033[0m: Passing 'arm' in the version specifier is not needed/allowed. If an arm build exists for the requested version, it is selected by default on macOS arm machines. You only need to pass the \033[36m--arch x86_64\033[0m flag if you want to explicitly install/switch to the \033[36mx86_64\033[0m version instead of the arm build. This only applies to cases in which builds for both architectures are available (which only applies to R >= 4.1.0)."
+    exit 0
+  fi
+
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
   # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then

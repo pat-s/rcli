@@ -27,8 +27,11 @@ echo -e "#### Trigger 'please pass a version'"
 echo -e "#### Install 4.1.2"
 ./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 
+echo -e "#### Install 4.1.2 with arm specifier"
+./rcli.sh install 4.1.2-arm >>/tmp/test-results/out.txt
+
 echo -e "#### Trigger 'already installed'"
-./rcli.sh install 4.1.2 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
+./rcli.sh install 4.1.2 >>/tmp/test-results/out.txt
 
 echo -e "#### Force reinstall"
 ./rcli.sh install 4.1.2 --force && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
@@ -91,7 +94,7 @@ if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 
 	# clean
 	sudo rm -rf /tmp/r-bak /tmp/r-lib-bak
-	rm /tmp/test-results/out.txt
+	# rm /tmp/test-results/out.txt
 
 	brew remove --cask r
 
