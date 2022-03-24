@@ -12,7 +12,7 @@ R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 ./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
 R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 
-./rcli.sh remove 4.1.2 >>/tmp/test-results/out.txt
+./rcli.sh remove 3.6.3 >>/tmp/test-results/out.txt
 
 ./rcli.sh ls >>/tmp/test-results/out.txt
 
