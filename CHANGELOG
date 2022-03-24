@@ -1,7 +1,15 @@
 
+rcli (0.7.4-1) unstable; urgency=medium
+
+  * `switch()` preserves custom user packages in the system lib again (again) on macOS arm
+  * env var `RCLI_ASK_USER_LIB` is now properly honored
+  * `switch()` and `install()` now exit early if 'arm' is detected in the passed R version
+  * internal updates to macOS arm test suite
+
 rcli (0.7.3-1) unstable; urgency=medium
 
   * `switch()` now works as expected (again) on macOS arm
+
 
 rcli (0.7.2-1) unstable; urgency=medium
 

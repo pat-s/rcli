@@ -41,7 +41,7 @@ EOF
   exit 0
 
 elif [[ $1 == "--version" || $1 == "-v" ]]; then
-  echo "0.7.3"
+  echo "0.7.4"
   exit 0
 
 elif [[ $1 == "--help" || $1 == "-h" ]]; then
