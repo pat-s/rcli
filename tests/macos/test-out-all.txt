@@ -1,0 +1,20 @@
+\033[0;31mERROR\033[0m: Passing an R version (or alias) is required.
+[1] "R version 4.1.2 (2021-11-01)"
+[1] "R version 4.1.2 (2021-11-01)"
+[1] "R version 4.1.2 (2021-11-01)"
+[1] "R version 4.0.5 (2021-03-31)"
+DEBUG: current R: 4.1.2
+DEBUG: R_VERSION: 4.0.5
+DEBUG: Switching: -> x86
+DEBUG: switch(): n(packages) in syslib: 33
+DEBUG: switch(): Backing up system library to /opt/R/4.1.2-arm64/syslib-bak
+DEBUG: current R: 4.0.5
+DEBUG: R_VERSION: 4.1.2
+DEBUG: Switching to arm64
+DEBUG: n(packages) in syslib: 33
+DEBUG: switch(): Backing up system library to /opt/R/4.0.5/syslib-bak
+DEBUG: switch(): Restoring existing syslib from /opt/R/4.1.2-arm64/syslib-bak into /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library
+[1] "R Under development"
+[0;31mERROR[0m: No R installation found at path [36m/opt/R/4.1.2-arm64[0m. Is [36m4.1.2 (arm64)[0m really installed?
+Installed R versions:
+- 4.0.5

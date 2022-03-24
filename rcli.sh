@@ -179,35 +179,38 @@ function formatArgument() {
 
 function check_user_library() {
 
-  if [[ $RCLI_QUIET != "true" || $RCLI_ASK_USER_LIB != "false" ]]; then
-    # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
-    if [[ $R4x == -1 ]]; then
+  if [[ $RCLI_QUIET != "true" ]]; then
+  # FIXME: bad style but unable to get it working with an OR statement somehow
+    if [[ $RCLI_ASK_USER_LIB != "false" ]]; then
+      # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
+      if [[ $R4x == -1 ]]; then
 
-      if [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
-        if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-          echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
+        if [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
+          if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+            echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
+            read -r
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+              mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+            fi
+          fi
+          exit 0
+        fi
+
+        if [[ $arm_avail == 1 && $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+          echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
           read -r
           if [[ $REPLY =~ ^[Yy]$ ]]; then
-            mkdir -p $HOME/Library/R/x86_64/$R_CUT/library
+            mkdir -p $HOME/Library/R/arm64/$R_CUT/library
           fi
         fi
-        exit 0
-      fi
 
-      if [[ $arm_avail == 1 && $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
-        read -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-          mkdir -p $HOME/Library/R/arm64/$R_CUT/library
-        fi
-      fi
-
-    else
-      if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
-        echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
-        read -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-          mkdir -p $HOME/Library/R/$R_CUT/library
+      else
+        if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+          echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
+          read -r
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            mkdir -p $HOME/Library/R/$R_CUT/library
+          fi
         fi
       fi
     fi
@@ -368,7 +371,11 @@ function switch() {
 
     if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
 
-      CURRENT_R_VERSION_ARCH=$currentR
+      if [[ $currentArch == "arm64" ]]; then
+        CURRENT_R_VERSION_ARCH=$currentR-$currentArch
+      else
+        CURRENT_R_VERSION_ARCH=$currentR
+      fi
 
       if [[ $(arch) == "x86_64" ]]; then
         TARGET_R_VERSION_ARCH=$R_VERSION
