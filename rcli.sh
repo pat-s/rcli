@@ -180,12 +180,10 @@ function formatArgument() {
 function check_user_library() {
 
   if [[ $RCLI_QUIET != "true" ]]; then
-  # FIXME: bad style but unable to get it working with an OR statement somehow
     if [[ $RCLI_ASK_USER_LIB != "false" ]]; then
-      # this means the request R version was smaller than 4.1.0 and the user lib does not need an arch subdir
-      if [[ $R4x == -1 ]]; then
 
-        if [[ $arm_avail == 1 && $ARG_ARCH == "x86_64" ]]; then
+      if [[ $arm_avail == 1 ]]; then
+        if [[ $ARG_ARCH == "x86_64" ]]; then
           if [[ $(test -d $HOME/Library/R/x86_64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
             echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/x86_64/$R_CUT/library\033[0m? [Y/y]"
             read -r
@@ -194,23 +192,25 @@ function check_user_library() {
             fi
           fi
           exit 0
-        fi
 
-        if [[ $arm_avail == 1 && $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
+        elif [[ $(test -d $HOME/Library/R/arm64/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
           echo -e "⚠ No user library was detected for R version $R_VERSION. Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/arm64/$R_CUT/library\033[0m? [Y/y]"
           read -r
           if [[ $REPLY =~ ^[Yy]$ ]]; then
             mkdir -p $HOME/Library/R/arm64/$R_CUT/library
           fi
+          exit 0
         fi
 
       else
+
         if [[ $(test -d $HOME/Library/R/$R_CUT/library && echo "true" || echo "false") == "false" ]]; then
           echo -e "⚠ No user library was detected for R version $R_VERSION (x86_64). Do you want \033[36mrcli\033[0m to create it for you at \033[36m$HOME/Library/R/$R_CUT/library\033[0m? [Y/y]"
           read -r
           if [[ $REPLY =~ ^[Yy]$ ]]; then
             mkdir -p $HOME/Library/R/$R_CUT/library
           fi
+          exit 0
         fi
       fi
     fi
@@ -253,89 +253,46 @@ function switch() {
       exit 0
     fi
 
-    # only backup if the syslib contains user packages (i.e. n > 31)
-    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
-    if [[ $ARG_DEBUG == 1 ]]; then
-      echo "DEBUG: Switching to arm64"
-      echo "DEBUG: n(packages) in syslib: $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs)"
-    fi
-
-    if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
-
-      if [[ $currentArch == "arm64" ]]; then
-        CURRENT_R_VERSION_ARCH=$currentR-$currentArch
-      else
-        CURRENT_R_VERSION_ARCH=$currentR
-      fi
-
-      if [[ $(arch) == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
-      if [[ $(arch) == "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
-      fi
-      # override with user preference
-      if [[ $ARG_ARCH == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
-
-      if [[ $ARG_DEBUG == 1 ]]; then
-        echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
-      fi
-
-      sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
-      sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-      sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/ /Library/Frameworks/R.framework/Versions 2>/dev/null
-      sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/TARGET_R_CUT_ARCH/Resources /Library/Frameworks/R.framework/ 2>/dev/null
-
-      # need 777 permissions
-      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-
-      check_user_library
-
-      # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
-        if [[ $ARG_DEBUG == 1 ]]; then
-          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
-        fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-        # permissions again after copying
-        sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-      fi
-
-      # clean
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
-
+    if [[ $currentArch == "arm64" ]]; then
+      CURRENT_R_VERSION_ARCH=$currentR-$currentArch
     else
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-      sudo cp -fR /opt/R/$R_VERSION-arm64/ /Library/Frameworks/R.framework/Versions 2>/dev/null
-      sudo cp -fR /opt/R/$R_VERSION/$R_CUT-arm64/Resources /Library/Frameworks/R.framework/ 2>/dev/null
-
-      TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-      TARGET_R_CUT_ARCH=$R_CUT-arm64
-
-      # need 777 permissions
-      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-
-      ### restore syslib from target version if it exists
-      # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
-        if [[ $ARG_DEBUG == 1 ]]; then
-          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
-        fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-        # permissions again after copying
-        sudo chmod 777 /Library/Frameworks/R.framework/Resources
-      fi
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
+      CURRENT_R_VERSION_ARCH=$currentR
     fi
+
+    TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+    TARGET_R_CUT_ARCH=$R_CUT-arm64
+
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
+
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
+
+    if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
+    fi
+
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgfortran.5.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libquadmath.0.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
+
+    # this makes the final version switch
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
+
+    # this ensures that the syslib is writable and no user libs will be created by RStudio
+    # this reflects the current CRAN behaviour
+    sudo chmod -R 775 /opt/R/$TARGET_R_VERSION_ARCH
+    sudo chown -R root:admin /opt/R/$TARGET_R_VERSION_ARCH
+
+    check_user_library
 
     exit 0
 
@@ -362,94 +319,40 @@ function switch() {
       exit 0
     fi
 
-    # only backup if the syslib contains user packages
-    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
+    TARGET_R_VERSION_ARCH=$R_VERSION
+    TARGET_R_CUT_ARCH=$R_CUT
 
-    if [[ $ARG_DEBUG == 1 ]]; then
-      echo -e "DEBUG: switch(): n(packages) in syslib: $(ls $SYSLIB | wc -l | xargs)"
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
+
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
+
+    if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
+      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
     fi
 
-    if [[ $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgfortran.5.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libquadmath.0.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
 
-      if [[ $currentArch == "arm64" ]]; then
-        CURRENT_R_VERSION_ARCH=$currentR-$currentArch
-      else
-        CURRENT_R_VERSION_ARCH=$currentR
-      fi
+    # this makes the final version switch
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
 
-      if [[ $(arch) == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
-      if [[ $(arch) == "arm64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
-        TARGET_R_CUT_ARCH=$R_CUT-arm64
-      fi
-      # override with user preference
-      if [[ $ARG_ARCH == "x86_64" ]]; then
-        TARGET_R_VERSION_ARCH=$R_VERSION
-        TARGET_R_CUT_ARCH=$R_CUT
-      fi
+    # this ensures that the syslib is writable and no user libs will be created by RStudio
+    # this reflects the current CRAN behaviour
+    sudo chmod -R 775 /opt/R/$TARGET_R_VERSION_ARCH
+    sudo chown -R root:admin /opt/R/$TARGET_R_VERSION_ARCH
 
-      if [[ $ARG_DEBUG == 1 ]]; then
-        echo -e "DEBUG: switch(): Backing up system library to /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak"
-      fi
-
-      sudo mkdir -p /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
-      sudo cp -fR $SYSLIB/* /opt/R/$CURRENT_R_VERSION_ARCH/syslib-bak
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-      sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
-      sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework 2>/dev/null
-
-      TARGET_R_VERSION_ARCH=$R_VERSION
-      TARGET_R_CUT_ARCH=$R_CUT
-
-      # need 777 permissions
-      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-
-      check_user_library
-
-      ### restore syslib from target version if it exists
-      # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak && echo "true" || echo "false") == "true" ]]; then
-        if [[ $ARG_DEBUG == 1 ]]; then
-          echo -e "DEBUG: switch(): Restoring existing syslib from /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak into /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library"
-        fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-        # permissions again after copying
-        sudo chmod 777 /Library/Frameworks/R.framework/Resources
-      fi
-
-      # clean
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
-
-    else
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/*
-      sudo cp -fR /opt/R/$R_VERSION/ /Library/Frameworks/R.framework/Versions 2>/dev/null
-      sudo cp -fR /opt/R/$R_VERSION/$R_CUT/Resources /Library/Frameworks/R.framework/ 2>/dev/null
-
-      TARGET_R_VERSION_ARCH=$R_VERSION
-      TARGET_R_CUT_ARCH=$R_CUT
-
-      # need 777 permissions
-      sudo chmod 777 /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-
-      check_user_library
-
-      # only restore if R_VERSION has a syslib-bak
-      if [[ $(test -d /opt/R/$R_VERSION/syslib-bak && echo "true" || echo "false") == "true" ]]; then
-        if [[ $ARG_DEBUG == 1 ]]; then
-          echo -e "DEBUG: switch(): Restoring existing syslib"
-        fi
-        sudo cp -fR /opt/R/$TARGET_R_VERSION_ARCH/syslib-bak/* /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/library
-        # permissions again after copying
-        sudo chmod 777 /Library/Frameworks/R.framework/Resources
-      fi
-
-      sudo rm -rf /Library/Frameworks/R.framework/Versions/syslib-bak
-    fi
+    check_user_library
 
     exit 0
   fi
@@ -589,11 +492,16 @@ function install() {
     curl -s https://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg -o /tmp/R-${R_VERSION}.pkg
 
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
-    sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
     sudo mkdir -p /opt/R/$R_VERSION/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
+
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
+
+    # this ensures that the syslib is writable and no user libs will be created by RStudio
+    # this reflects the current CRAN behaviour
+    sudo chmod -R 775 /opt/R/$R_VERSION
+    sudo chown -R root:admin /opt/R/$R_VERSION
 
     rm /tmp/R-${R_VERSION}.pkg
 
@@ -661,28 +569,31 @@ function install() {
     fi
 
     # backup current system library if non exists yet
-    # this ensure that new rcli users don't loose their packages if they only use a system library
+    # this ensures that new rcli users don't loose their packages if they only use a system library
     # only invoked if the requested R version is the same as the running version
-    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64 && echo "true" || echo "false")
+    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64/Resources/library && echo "true" || echo "false")
     if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
-      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
+      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) to \033[36m/opt/R/$R_VERSION-arm64/Resources/library\033[0m as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
       RESTORE_SYSLIB="true"
-      sudo mkdir -p /opt/R/$R_VERSION-arm64/syslib-bak
-      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION-arm64/syslib-bak
+      sudo mkdir -p /opt/R/$R_VERSION-arm64/Resources/library
+      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION-arm64/Resources/library
+      echo -e "✓ Finished backing up system library."
     fi
 
-    sudo rm -rf /Library/Frameworks/R.framework/Versions
+    # sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}-arm64.pkg
 
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64 /opt/R/$R_VERSION-arm64/ 2>/dev/null
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION-arm64/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64/Resources /opt/R/$R_VERSION-arm64/ 2>/dev/null
 
-    if [[ $RESTORE_SYSLIB == "true" ]]; then
-      sudo cp -fR /opt/R/$R_VERSION-arm64/syslib-bak/* $SYSLIB
-      sudo chmod 777 /Library/Frameworks/R.framework/Resources
-    fi
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
+    ln -s /opt/R/$R_VERSION-arm64 /Library/Frameworks/R.framework/Versions/Current
+
+    # this ensures that the syslib is writable and no user libs will be created by RStudio
+    # this reflects the current CRAN behaviour
+    sudo chmod -R 775 /opt/R/$R_VERSION-arm64
+    sudo chown -R root:admin /opt/R/$R_VERSION-arm64
 
   else
     # prevent users from reinstalling an R version that already exists
@@ -717,33 +628,21 @@ function install() {
       currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
     fi
     currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
-    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
-
-    # backup current system library if non exists yet
-    # this ensure that new rcli users don't loose their packages if they only use a system library
-    # only invoked if the requested R version is the same as the running version
-    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION && echo "true" || echo "false")
-    if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
-      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
-      RESTORE_SYSLIB="true"
-      sudo mkdir -p /opt/R/$R_VERSION/syslib-bak
-      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION/syslib-bak
-    fi
 
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
-    sudo rm -rf /Library/Frameworks/R.framework/Versions
+    # sudo rm -rf /Library/Frameworks/R.framework/Versions
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}.pkg
 
-    check_user_library
-
     sudo mkdir -p /opt/R/$R_VERSION/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT /opt/R/$R_VERSION/ 2>/dev/null
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/Current /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
 
-    if [[ $RESTORE_SYSLIB == "true" ]]; then
-      sudo cp -fR /opt/R/$R_VERSION/syslib-bak/* $SYSLIB
-    fi
+    # this ensures that the syslib is writable and no user libs will be created by RStudio
+    # this reflects the current CRAN behaviour
+    sudo chmod -R 775 /opt/R/$R_VERSION
+    sudo chown -R root:admin /opt/R/$R_VERSION
+
+    check_user_library
 
   fi
 }
