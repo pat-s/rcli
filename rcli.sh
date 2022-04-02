@@ -266,15 +266,16 @@ function switch() {
 
     mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
 
-    if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
-    fi
+    # if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib >>/dev/null 2>&1
+    # fi
 
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
@@ -283,6 +284,7 @@ function switch() {
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
@@ -326,15 +328,16 @@ function switch() {
 
     mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
 
-    if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
-      rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
-    fi
+    # if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib >>/dev/null 2>&1
+    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib >>/dev/null 2>&1
+    # fi
 
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
@@ -343,6 +346,7 @@ function switch() {
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
     ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
+    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
@@ -580,7 +584,6 @@ function install() {
       echo -e "✓ Finished backing up system library."
     fi
 
-    # sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}-arm64.pkg
 

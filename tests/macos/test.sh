@@ -8,14 +8,18 @@ if [[ $CI != "true" ]]; then
 	# start fresh
 	sudo rm -rf /Library/Frameworks/R.framework
 
-	# we need R to available
-	brew install -q --cask r
+	curl -s https://cran.r-project.org/bin/macosx/base/R-4.0.5.pkg -o /tmp/R-4.0.5.pkg
+	sudo installer -pkg /tmp/R-4.0.5.pkg -target / >/dev/null
+	rm /tmp/R-4.0.5.pkg
 
 	mkdir /tmp/r-bak
 	mkdir /tmp/r-lib-bak
 
 	sudo mv /opt/R /tmp/r-bak
-	mv ~/Library/R /tmp/r-lib-bak
+
+	if [[ -d ~/Library/R ]]; then
+		mv ~/Library/R /tmp/r-lib-bak
+	fi
 
 fi
 
@@ -62,16 +66,18 @@ R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 echo -e "#### Switching 4.0.5 -> devel"
 ./rcli.sh switch dev >>/tmp/test-results/out.txt
 
-# not saving in output as the value would change constantly
-echo -e "#### Remove R 4.1.2"
-./rcli.sh remove 4.1.2
-
-echo -e "#### Remove R 4.1.2 again (and expect error)"
-./rcli.sh remove 4.1.2 >>/tmp/test-results/out.txt
+echo -e "#### Switching devel -> 4.1.2"
+./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
 
 # not saving in output as the value would change constantly
 echo -e "#### Remove R devel"
 ./rcli.sh remove dev
+
+echo -e "#### Remove R 4.0.5"
+./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
+
+echo -e "#### Remove R 4.0.5 again (and expect error)"
+./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
 
 echo -e "#### List installed R versions"
 ./rcli.sh ls >>/tmp/test-results/out.txt
@@ -90,13 +96,17 @@ if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 
 	# restore
 	sudo mv /tmp/r-bak/* /opt/R
-	mkdir ~/Library/R && mv /tmp/r-lib-bak/* ~/Library/R
+
+	if [[ -d /tmp/r-lib-bak ]]; then
+		mkdir ~/Library/R
+		mv /tmp/r-lib-bak/* ~/Library/R
+	fi
 
 	# clean
 	sudo rm -rf /tmp/r-bak /tmp/r-lib-bak
 	# rm /tmp/test-results/out.txt
 
-	brew remove --cask r
+	# brew remove --cask r
 
 else
 
