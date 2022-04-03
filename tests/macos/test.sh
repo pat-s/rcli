@@ -25,7 +25,8 @@ if [[ $CI != "true" ]]; then
 
 fi
 
-mkdir -p /tmp/test-results && touch /tmp/test-results/out.txt
+mkdir -p /tmp/test-results
+touch /tmp/test-results/out.txt
 
 echo -e "#### Trigger 'please pass a version'"
 ./rcli.sh install >>/tmp/test-results/out.txt
@@ -91,8 +92,6 @@ echo -e "#### Install rel"
 # arm specific tests
 if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 
-	if [[ $(diff tests/macos/test-out-all.txt /tmp/test-results/out.txt) == "" ]]; then exit 0; else diff --unified tests/macos/test-out-all.txt /tmp/test-results/out.txt && exit 1; fi
-
 	# clean
 	sudo rm -rf /opt/R
 
@@ -101,19 +100,28 @@ if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 
 	if [[ -d /tmp/r-lib-bak ]]; then
 		mkdir ~/Library/R
-		mv /tmp/r-lib-bak/* ~/Library/R
+		mv /tmp/r-lib-bak/R/* ~/Library/R
 	fi
 
 	# clean
 	sudo rm -rf /tmp/r-bak /tmp/r-lib-bak
-	# rm /tmp/test-results/out.txt
+
+	if [[ $(diff tests/macos/test-out-all.txt /tmp/test-results/out.txt) == "" ]]; then
+		exit 0
+	else
+		mv /tmp/test-results/out.txt /tmp/test-fail-rcli.txt
+		diff --unified tests/macos/test-out-x86.txt /tmp/test-fail-rcli.txt
+		rm /tmp/test-results/out.txt
+		echo -e "TESTS FAILED: Open artifact via code /tmp/test-fail-rcli.txt"
+		exit 1
+	fi
 
 else
 
 	if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt) == "" ]]; then
 		exit 0
 	else
-		diff --unified tests/macos/test-out-x86.txt /tmp/test-results/out.txt
+		diff --unified tests/macos/test-out-x86.txt /tmp/test-fail-rcli.txt
 		exit 1
 	fi
 
