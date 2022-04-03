@@ -548,7 +548,7 @@ function install() {
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     sudo installer -pkg /tmp/R-${R_VERSION}.pkg -target / >/dev/null
     sudo mkdir -p /opt/R/$R_VERSION/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/* /opt/R/$R_VERSION/ 2>/dev/null
 
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
@@ -620,7 +620,7 @@ function install() {
     rm /tmp/R-${R_VERSION}-arm64.pkg
 
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64/Resources /opt/R/$R_VERSION-arm64/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64/* /opt/R/$R_VERSION-arm64/ 2>/dev/null
 
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
@@ -685,7 +685,7 @@ function install() {
     rm /tmp/R-${R_VERSION}.pkg
 
     sudo mkdir -p /opt/R/$R_VERSION/
-    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
+    sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/* /opt/R/$R_VERSION/ 2>/dev/null
 
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
