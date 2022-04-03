@@ -605,7 +605,8 @@ function install() {
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
       fi
 
-      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      # function
+      get_dev_version_string
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     else
@@ -660,7 +661,8 @@ function install() {
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
       fi
 
-      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      # function
+      get_dev_version_string
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
     else
@@ -723,6 +725,31 @@ function list() {
 
   fi
 
+}
+
+function get_dev_version_string() {
+
+  # this fails sometimes, e.g. if the current dev goes into "alpha" state
+  R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+  if [[ $R_VERSION == "" ]]; then
+    # this will break if the first "alpha" is removed at some point
+    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "alpha" -m 2 | tail -1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_VERSION=$(increment_version $R_VERSION 1)
+  fi
+}
+
+### from https://stackoverflow.com/a/64390598/4185785
+### Increments the part of the string
+## $1: version itself
+## $2: number of part: 0 – major, 1 – minor, 2 – patch
+increment_version() {
+  local delimiter=.
+  local array=($(echo "$1" | tr $delimiter '\n'))
+  array[$2]=$((array[$2] + 1))
+  echo $(
+    local IFS=$delimiter
+    echo "${array[*]}"
+  )
 }
 
 # -*- tab-width: 2; encoding: utf-8 -*-
@@ -832,7 +859,8 @@ function install_from_source() {
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"
     fi
 
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    # function
+    get_dev_version_string
     curl -s -o R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
     tar -xf R-${R_VERSION}.tar.gz
     cd R-devel
@@ -893,12 +921,19 @@ function remove() {
   # detect if current R is r-devel
   # 'velop' is correct here
   if [[ $currentR == "velop" ]]; then
+    # this fails sometimes, e.g. if the current dev goes into "alpha" state
     currentR=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    if [[ $currentR == "" ]]; then
+      # this will break if the first "alpha" is removed at some point
+      currentR=$(curl -s https://mac.r-project.org/ | grep "alpha" -m 2 | tail -1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      currentR=$(increment_version $R_VERSION 1)
+    fi
   fi
   currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
 
   if [[ $R_VERSION =~ dev ]]; then
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    # function
+    get_dev_version_string
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
   fi
 
@@ -1045,7 +1080,8 @@ function rcli() {
   elif [[ $1 == "switch" ]]; then
 
     if [[ $R_VERSION =~ dev ]]; then
-      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      # function
+      get_dev_version_string
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
     fi
 
