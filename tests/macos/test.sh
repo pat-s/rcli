@@ -12,10 +12,12 @@ if [[ $CI != "true" ]]; then
 	sudo installer -pkg /tmp/R-4.0.5.pkg -target / >/dev/null
 	rm /tmp/R-4.0.5.pkg
 
-	mkdir /tmp/r-bak
-	mkdir /tmp/r-lib-bak
+	mkdir /tmp/r-bak >/dev/null
+	mkdir /tmp/r-lib-bak >/dev/null
 
-	sudo mv /opt/R /tmp/r-bak
+	if [[ -d /opt/R ]]; then
+		sudo mv /opt/R /tmp/r-bak
+	fi
 
 	if [[ -d ~/Library/R ]]; then
 		mv ~/Library/R /tmp/r-lib-bak
@@ -105,8 +107,6 @@ if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 	# clean
 	sudo rm -rf /tmp/r-bak /tmp/r-lib-bak
 	# rm /tmp/test-results/out.txt
-
-	# brew remove --cask r
 
 else
 
