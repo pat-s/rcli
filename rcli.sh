@@ -218,6 +218,70 @@ function check_user_library() {
 
 }
 
+function backup_syslib() {
+  # backup current system library if non exists yet
+  # this ensures that R packages from new rcli users who only use a system library are retained
+  # only invoked if the requested R version is the same as the running version
+  if [[ ! -d /opt/R/$TARGET_R_VERSION_ARCH/Resources/library && $currentR == $R_VERSION ]]; then
+    echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) to \033[36m/opt/R/$TARGET_R_VERSION_ARCH/Resources/library\033[0m as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
+    RESTORE_SYSLIB="true"
+    sudo mkdir -p /opt/R/$TARGET_R_VERSION_ARCH/Resources/library
+    sudo cp -fR $SYSLIB/* /opt/R/$TARGET_R_VERSION_ARCH/Resources/library
+    echo -e "✓ Finished backing up system library."
+  fi
+}
+
+function update_symlinks() {
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib >>/dev/null 2>&1
+  rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib >>/dev/null 2>&1
+
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgfortran.5.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libquadmath.0.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
+  ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib
+}
+
+function first_time() {
+  ### first time users
+  # checks if /opt/R/ contains any R installations
+  if [[ ! -d /opt/R ]]; then
+    firstTime=1
+  elif [[ -d /opt/R ]]; then
+    firstTime=$(ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /")
+    if [[ $firstTime == "" ]]; then
+      firstTime=1
+    fi
+  else
+    firstTime=""
+  fi
+
+  # echo "SYSLIB $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs)"
+  # echo "firsttime: ${#firstTime}"
+  # echo "currentR: $currentR"
+  # echo "R_VERSION: $R_VERSION"
+
+  # checks if the user has installed any custom libraries into the system lib
+  if [[ $currentR != $R_VERSION && ${#firstTime} == 1 && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
+    echo -e "⚠️  ⚠️  ⚠️\nHey there! It seems you are using \033[36mrcli\033[0m for the first time and trying to install an R version different from the one you are currently running. This is a problem if you do not make use of a user library (which it seems like) and instead install all your packages into your system library (which is the unfortunate default on macOS, so don't worry about having done anything wrong). To preserve your existing packages and let \033[36mrcli\033[0m backup them, please first run \033[36mrcli install $currentR\033[0m.\n"
+
+    echo -e "\033[36mrcli\033[0m is able to account for this approach by copying things around - however R version switching might take a bit longer. Please consider using a user library for your personal packages. You can do so by calling \033[36mmkdir -p /Users/$(whoami)/Library/R/$R_CUT\033[0m (x86) or \033[36mmkdir -p /Users/$(whoami)/Library/R/arm64/$R_CUT\033[0m (arm64) from the terminal. Note that this needs to be done for every R minor version (e.g. 4.1, 4.0 and so forth) and architecture.\n"
+
+    echo -e "This is a one-time message and you won't see it again after you have installed your current R version via \033[36mrcli\033[0m as suggested above."
+    exit 0
+  fi
+
+}
+
 function switch() {
 
   if [[ $(uname) == "Linux" ]]; then
@@ -266,25 +330,8 @@ function switch() {
 
     mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
 
-    # if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib >>/dev/null 2>&1
-    # fi
-
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgfortran.5.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libquadmath.0.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib
+    # removes old and adds new symlinks to make the final version switch functional
+    update_symlinks
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
@@ -328,25 +375,8 @@ function switch() {
 
     mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib
 
-    # if [[ $(ls /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1 && echo true || echo false) == "true" ]]; then
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib >>/dev/null 2>&1
-    rm /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib >>/dev/null 2>&1
-    # fi
-
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libR.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libR.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRblas.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRblas.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgfortran.5.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgfortran.5.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libquadmath.0.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libquadmath.0.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libRlapack.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libRlapack.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.2.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.2.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.1.dylib
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/lib/libgcc_s.1.dylib /Library/Frameworks/R.framework/Versions/$TARGET_R_CUT_ARCH/Resources/lib/libgcc_s.1.dylib
+    # removes old and adds new symlinks to make the final version switch functional
+    update_symlinks
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
@@ -481,6 +511,20 @@ function install() {
     fi
   fi
 
+  if [[ $(arch) == "x86_64" ]]; then
+    TARGET_R_VERSION_ARCH=$R_VERSION
+    TARGET_R_CUT_ARCH=$R_CUT
+  fi
+  if [[ $(arch) == "arm64" ]]; then
+    TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+    TARGET_R_CUT_ARCH=$R_CUT-arm64
+  fi
+  # override with user preference
+  if [[ $ARG_ARCH == "x86_64" ]]; then
+    TARGET_R_VERSION_ARCH=$R_VERSION
+    TARGET_R_CUT_ARCH=$R_CUT
+  fi
+
   # this means the request R version was smaller than 3.6.3
   if [[ $R3x == -1 ]]; then
 
@@ -489,6 +533,12 @@ function install() {
       echo -e "R $R_VERSION is already installed - you only need to call \033[36mrcli switch $R_VERSION\033[0m to use it."
       exit 0
     fi
+
+    # check if rcli is used for the first time
+    first_time
+
+    # preserve current packages of user installed in syslib
+    backup_syslib
 
     if [[ $RCLI_QUIET != "true" ]]; then
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/bin/macosx/el-capitan/base/R-${R_VERSION}.pkg\033[0m"
@@ -500,7 +550,9 @@ function install() {
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
 
-    ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
+    # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
+    ln -s /opt/R/$R_VERSION /Library/Frameworks/R.framework/Versions/Current
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -542,20 +594,11 @@ function install() {
     SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
 
-    ### first time users
-    # checks if /opt/R/ contains any R installations
-    if [[ $(test -d /opt/R && echo "true" || echo "false") == "true" ]]; then
-      firstTime=$(ls -l /opt/R | awk '/^d/ { print $9 }' | grep "^[0-9][^/]*$" | sed "s/^/- /")
-    fi
-    # checks if the user has installed any custom libraries into the system lib
-    if [[ $currentR != $R_VERSION && ${#firstTime} == 0 && $(find $SYSLIB -maxdepth 1 -type d | wc -l | xargs) > 31 ]]; then
-      echo -e "⚠️  ⚠️  ⚠️\nHey there! It seems you are using \033[36mrcli\033[0m for the first time and trying to install an R version different from the one you are currently running. This is a problem if you do not make use of a user library (which it seems like) and instead install all your packages into your system library (which is the unfortunate default on macOS, so don't worry about having done anything wrong). To prevent package loss, please first run \033[36mrcli install $currentR\033[0m so your existing packages are retained.\n"
+    # check if rcli is used for the first time
+    first_time
 
-      echo -e "\033[36mrcli\033[0m is able to account for this approach by copying things around - however R version switching might take a bit longer. Please consider using a user library for your personal packages. You can do so by calling \033[36mmkdir -p /Users/$(whoami)/Library/R/$R_CUT\033[0m (x86) or \033[36mmkdir -p /Users/$(whoami)/Library/R/arm64/$R_CUT\033[0m (arm64) from the terminal. Note that this needs to be done for every R minor version (e.g. 4.1, 4.0 and so forth) and architecture.\n"
-
-      echo -e "This is a one-time message and you won't see it again after you have installed your current R version via \033[36mrcli\033[0m as suggested above."
-      exit 0
-    fi
+    # preserve current packages of user installed in syslib
+    backup_syslib
 
     if [[ $R_VERSION =~ dev ]]; then
       if [[ $RCLI_QUIET != "true" ]]; then
@@ -572,24 +615,13 @@ function install() {
       curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     fi
 
-    # backup current system library if non exists yet
-    # this ensures that new rcli users don't loose their packages if they only use a system library
-    # only invoked if the requested R version is the same as the running version
-    SYSLIB_EXISTS=$(test -d /opt/R/$R_VERSION-arm64/Resources/library && echo "true" || echo "false")
-    if [[ $SYSLIB_EXISTS == "false" && $currentR == $R_VERSION ]]; then
-      echo -e "ℹ Backing up current system library (\033[36m${SYSLIB}\033[0m) to \033[36m/opt/R/$R_VERSION-arm64/Resources/library\033[0m as no existing installation of R \033[36m${R_VERSION}\033[0m installed via \033[36mrcli\033[0m was found. This is a one-time action."
-      RESTORE_SYSLIB="true"
-      sudo mkdir -p /opt/R/$R_VERSION-arm64/Resources/library
-      sudo cp -fR $SYSLIB/* /opt/R/$R_VERSION-arm64/Resources/library
-      echo -e "✓ Finished backing up system library."
-    fi
-
     sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
     rm /tmp/R-${R_VERSION}-arm64.pkg
 
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64/Resources /opt/R/$R_VERSION-arm64/ 2>/dev/null
 
+    # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     ln -s /opt/R/$R_VERSION-arm64 /Library/Frameworks/R.framework/Versions/Current
 
@@ -598,7 +630,20 @@ function install() {
     sudo chmod -R 775 /opt/R/$R_VERSION-arm64
     sudo chown -R root:admin /opt/R/$R_VERSION-arm64
 
+    check_user_library
+
   else
+
+    currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)
+    currentArch=$(R -s -q -e "Sys.info()[['machine']]" | cut -c 6- | sed 's/.$//')
+    SYSLIB=$(R -q -s -e "tail(.libPaths(), 1)" | cut -c 6- | sed 's/.$//')
+
+    # check if rcli is used for the first time
+    first_time
+
+    # preserve current packages of user installed in syslib
+    backup_syslib
+
     # prevent users from reinstalling an R version that already exists
     if [[ $ARG_FORCE != 1 && $(test -d /opt/R/$R_VERSION/ && echo "true" || echo "false") == "true" ]]; then
       if [[ $R_VERSION != "devel" && $ARG_ARCH == "x86_64" ]]; then
@@ -639,6 +684,10 @@ function install() {
 
     sudo mkdir -p /opt/R/$R_VERSION/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT/Resources /opt/R/$R_VERSION/ 2>/dev/null
+
+    # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
+    sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
+    ln -s /opt/R/$R_VERSION /Library/Frameworks/R.framework/Versions/Current
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
