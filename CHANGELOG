@@ -1,4 +1,13 @@
 
+
+rcli (0.8.0-1) unstable; urgency=medium
+
+  * Internal rework of macOS version switching and system lib backup: no file copying anymore, instead symbolic links are used.
+    This speeds up and robustifies R version switching.
+  * System libs on macOS now live at `/opt/R/<R version>/Resources/library` instead of `/Library/Frameworks/R.framework`.
+    This simplifies many things within `rcli` and was partly inspired by the change to use symlinks instead of file copying (where possible) to preserve static system libs across patch versions.
+  * Various documentation updates
+
 rcli (0.7.4-1) unstable; urgency=medium
 
   * `switch()` preserves custom user packages in the system lib again (again) on macOS arm
