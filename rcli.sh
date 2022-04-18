@@ -307,6 +307,7 @@ function switch() {
   if [[ $ARG_DEBUG == 1 ]]; then
     echo "DEBUG: current R: $currentR"
     echo "DEBUG: R_VERSION: $R_VERSION"
+    echo "DEBUG: current arch: $currentArch"
   fi
 
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
@@ -1067,7 +1068,7 @@ function rcli() {
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
   # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_VERSION=$(curl -s https://www.r-project.org/ | grep "has been released"  -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     if [[ $ARG_DEBUG == 1 ]]; then
       echo $R_VERSION
