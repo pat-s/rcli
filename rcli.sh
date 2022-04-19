@@ -307,6 +307,7 @@ function switch() {
   if [[ $ARG_DEBUG == 1 ]]; then
     echo "DEBUG: current R: $currentR"
     echo "DEBUG: R_VERSION: $R_VERSION"
+    echo "DEBUG: current arch: $currentArch"
   fi
 
   if [[ ($arch == "arm64" && $arm_avail == 1 && $ARG_ARCH != "x86_64") ]]; then
@@ -732,9 +733,15 @@ function get_dev_version_string() {
   # this fails sometimes, e.g. if the current dev goes into "alpha" state
   R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Under development" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
   if [[ $R_VERSION == "" ]]; then
-    # this will break if the first "alpha" is removed at some point
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "alpha" -m 2 | tail -1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
-    R_VERSION=$(increment_version $R_VERSION 1)
+    # first try if a RC is found
+    RC=$(curl -s https://mac.r-project.org/ | grep "RC" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    if [[ $RC != "" ]]; then
+      R_VERSION=$(increment_version $RC 1)
+    else
+      # Fallback: check if "alpha" is found in the string name
+      R_VERSION=$(curl -s https://mac.r-project.org/ | grep "alpha" -m 2 | tail -1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+      R_VERSION=$(increment_version $R_VERSION 1)
+    fi
   fi
 }
 
@@ -1061,7 +1068,7 @@ function rcli() {
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
   # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then
-    R_VERSION=$(curl -s https://mac.r-project.org/ | grep "Patched" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_VERSION=$(curl -s https://www.r-project.org/ | grep "has been released"  -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     if [[ $ARG_DEBUG == 1 ]]; then
       echo $R_VERSION

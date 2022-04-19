@@ -109,10 +109,10 @@ if [[ $CI != "true" && $(arch) == "arm64" ]]; then
 	if [[ $(diff tests/macos/test-out-all.txt /tmp/test-results/out.txt) == "" ]]; then
 		exit 0
 	else
-		mv /tmp/test-results/out.txt /tmp/test-fail-rcli.txt
-		diff --unified tests/macos/test-out-x86.txt /tmp/test-fail-rcli.txt
+		mv /tmp/test-results/out.txt /tmp/test-results/test-fail-rcli.txt
+		diff --unified tests/macos/test-out-x86.txt /tmp/test-results/test-fail-rcli.txt
 		rm /tmp/test-results/out.txt
-		echo -e "TESTS FAILED: Open artifact via code /tmp/test-fail-rcli.txt"
+		echo -e "TESTS FAILED: Open artifact via code /tmp/test-results/test-fail-rcli.txt"
 		exit 1
 	fi
 
@@ -121,7 +121,8 @@ else
 	if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt) == "" ]]; then
 		exit 0
 	else
-		diff --unified tests/macos/test-out-x86.txt /tmp/test-fail-rcli.txt
+		mv /tmp/test-results/out.txt /tmp/test-results/test-fail-rcli.txt
+		diff --unified tests/macos/test-out-x86.txt /tmp/test-results/test-fail-rcli.txt
 		exit 1
 	fi
 
