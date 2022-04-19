@@ -37,7 +37,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          path: /tmp/test-results/out.txt
+          path: /tmp/test-fail-rcli.txt
 
       # - uses: codecov/codecov-action@v2
       #   with:
