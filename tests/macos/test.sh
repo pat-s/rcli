@@ -121,7 +121,7 @@ else
 	if [[ $(diff tests/macos/test-out-x86.txt /tmp/test-results/out.txt) == "" ]]; then
 		exit 0
 	else
-		mv /tmp/test-results/out.txt /tmp/test-fail-rcli.t
+		mv /tmp/test-results/out.txt /tmp/test-fail-rcli.txt
 		diff --unified tests/macos/test-out-x86.txt /tmp/test-fail-rcli.txt
 		exit 1
 	fi
