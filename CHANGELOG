@@ -1,4 +1,7 @@
+rcli (0.8.1-1) unstable; urgency=medium
 
+  * Account for "RC" alias when scraping dev version. This should ensure that installing and switching between 'dev' versions works if the upcoming release is labelled as "RC" (#41)
+  * Fixed the scraping of the current R release to make the "release" alias work again (#41)
 
 rcli (0.8.0-1) unstable; urgency=medium
 
