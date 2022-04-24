@@ -1,4 +1,4 @@
-# rcli
+# rcli <img src=assets/logo.png" align="right" width = "120" />
 
 [![rcli-macOS-x86](https://github.com/pat-s/rcli/actions/workflows/main.yml/badge.svg)](https://github.com/pat-s/rcli/actions/workflows/main.yml)
 [![CircleCI](https://circleci.com/gh/pat-s/rcli/tree/main.svg?style=svg)](https://circleci.com/gh/pat-s/rcli/tree/main)
