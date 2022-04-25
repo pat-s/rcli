@@ -4,8 +4,6 @@
 `rcli` is a tool for simplified installion of R versions and switching between these.
 It is written in `bash`, aims to be cross-platform and low on dependencies.
 
-See https://rcli.pat-s.me for the documentation and https://pat-s.me/announcing-rcli/ for the announcement post.
-
 ## Quickstart
 
 Install via `homebrew` (on macOS):
@@ -29,3 +27,7 @@ rcli install release
 rcli install devel
 rcli switch release
 ```
+
+**Full documentation**: https://rcli.pat-s.me
+
+Announcement blog post: https://pat-s.me/announcing-rcli/
