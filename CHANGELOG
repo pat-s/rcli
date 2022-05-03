@@ -1,3 +1,8 @@
+
+rcli (0.8.2-1) unstable; urgency=medium
+
+  * `Rscript` now works as intended. Beforehand, `Rscript` crashed as it was not able to find the corresponding `R` executable.
+
 rcli (0.8.1-1) unstable; urgency=medium
 
   * Account for "RC" alias when scraping dev version. This should ensure that installing and switching between 'dev' versions works if the upcoming release is labelled as "RC" (#41)

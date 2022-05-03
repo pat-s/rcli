@@ -336,6 +336,11 @@ function switch() {
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
+    # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
+    sudo rm /usr/local/bin/R /usr/local/bin/Rscript
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_VERSION_ARCH/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -381,6 +386,11 @@ function switch() {
 
     # this makes the final version switch
     ln -s /opt/R/$TARGET_R_VERSION_ARCH /Library/Frameworks/R.framework/Versions/Current
+    # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
+    sudo rm /usr/local/bin/R /usr/local/bin/Rscript
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_VERSION_ARCH/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -554,6 +564,11 @@ function install() {
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     ln -s /opt/R/$R_VERSION /Library/Frameworks/R.framework/Versions/Current
+    # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
+    sudo rm /usr/local/bin/R /usr/local/bin/Rscript
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_VERSION_ARCH/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -626,6 +641,11 @@ function install() {
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     ln -s /opt/R/$R_VERSION-arm64 /Library/Frameworks/R.framework/Versions/Current
+    # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
+    sudo rm /usr/local/bin/R /usr/local/bin/Rscript
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_VERSION_ARCH/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -691,6 +711,11 @@ function install() {
     # this triggers the change in .libPaths() from /Library/Frameworks/R.framework -> /opt/R/$R_VERSION/
     sudo rm -rf /Library/Frameworks/R.framework/Versions/Current
     ln -s /opt/R/$R_VERSION /Library/Frameworks/R.framework/Versions/Current
+    # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
+    sudo rm /usr/local/bin/R /usr/local/bin/Rscript
+    sudo ln -s /opt/R/$R_VERSION/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$R_VERSION/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$R_VERSION/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
@@ -1068,7 +1093,7 @@ function rcli() {
   # Caution: don't translate 'dev' here as otherwise R-devel won't be dowloaded correctly
   # 'dev' is translated within install()
   if [[ $R_VERSION =~ rel ]]; then
-    R_VERSION=$(curl -s https://www.r-project.org/ | grep "has been released"  -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
+    R_VERSION=$(curl -s https://www.r-project.org/ | grep "has been released" -m 1 | grep "[0-9]\.[0-9]\.[0-9]" -o)
     R_CUT=$(echo $R_VERSION | cut -c 1-3)
     if [[ $ARG_DEBUG == 1 ]]; then
       echo $R_VERSION
