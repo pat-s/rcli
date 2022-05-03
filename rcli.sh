@@ -713,9 +713,9 @@ function install() {
     ln -s /opt/R/$R_VERSION /Library/Frameworks/R.framework/Versions/Current
     # recreate and modify /usr/bin/local symlinks as otherwise Rscript is not pointing to the correct R location
     sudo rm /usr/local/bin/R /usr/local/bin/Rscript
-    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/R /usr/local/bin/R
-    sudo ln -s /opt/R/$TARGET_R_VERSION_ARCH/Resources/bin/Rscript /usr/local/bin/Rscript
-    mkdir -p /Library/Frameworks/R.framework/Versions/$TARGET_R_VERSION_ARCH/Resources/bin >/dev/null
+    sudo ln -s /opt/R/$R_VERSION/Resources/bin/R /usr/local/bin/R
+    sudo ln -s /opt/R/$R_VERSION/Resources/bin/Rscript /usr/local/bin/Rscript
+    mkdir -p /Library/Frameworks/R.framework/Versions/$R_VERSION/Resources/bin >/dev/null
 
     # this ensures that the syslib is writable and no user libs will be created by RStudio
     # this reflects the current CRAN behaviour
