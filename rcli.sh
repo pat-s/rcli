@@ -727,76 +727,6 @@ function install() {
   fi
 }
 
-function migrate-pkgs() {
-
-  # version_from=$2
-  # # version_to=$3
-
-  # echo "$version_to"
-
-  if [[ $version_from =~ dev ]]; then
-    get_dev_version_string
-    version_from=$R_VERSION
-    R_CUT_TO=$(echo $R_VERSION | cut -c 1-3)
-  else
-    R_CUT_TO=$version_to
-  fi
-
-  # check if both R versions are installed
-  # if [[ ! -d /opt/R/$version_from/ ]]; then
-  #   echo -e "R $version_from is not installed - please install it first."
-  #   exit 1
-  # fi
-  # if [[ ! -d /opt/R/$version_to/ ]]; then
-  #   echo -e "R $version_to is not installed - please install it first."
-  #   exit 1
-  # fi
-
-  if [[ $ARG_USER == 1 ]]; then
-
-    export R_CUT=$R_CUT
-    export R_CUT_TO=$R_CUT_TO
-    # R -q -e 'sprintf("~/Library/R/arm64/%s/library/", Sys.getenv("R_CUT"))'
-    to_install=$(R -s -q -e 'lib_loc=sprintf("~/Library/R/arm64/%s/library/", Sys.getenv("R_CUT")); unname(installed.packages(lib.loc = lib_loc)[, "Package"])')
-    to_install_count=$(R -s -q -e 'lib_loc=sprintf("~/Library/R/arm64/%s/library/", Sys.getenv("R_CUT")); cat(length(unname(installed.packages(lib.loc = lib_loc)[, "Package"])))')
-    if [[ $RCLI_QUIET != "true" ]]; then
-      echo -e "The following \033[36m$to_install_count\033[0m packages were discovered in \033[36m~/Library/R/arm64/$R_CUT/library/\033[0m and will attempted be re-installed into \033[36m~/Library/R/arm64/$R_CUT_TO/library/\033[0m. Note that this only works for CRAN packages and others (GitHub, local) packages will fail to install. Doing so requires switching to the target R minor version ($R_CUT_TO) first. Do you want to continue? [Y/y]\n"
-      # echo -e "$to_install"
-      read -r
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # switch to target R version
-        # grep latest patch version of target R version
-        switch_version=$(rcli ls | grep $R_CUT_TO | tail -1 | cut -c 3-7)
-
-        if [[ $RCLI_QUIET != "true" ]]; then
-          echo -e "→ Switching to \033[36m$switch_version\033[0m"
-        fi
-        rcli switch $switch_version
-      fi
-    fi
-
-    if [[ -d ~/Library/R/arm64/$R_CUT_TO/library ]]; then
-      mkdir -p ~/Library/R/arm64/$R_CUT_TO/library
-    fi
-
-    if [[ $RCLI_QUIET != "true" ]]; then
-      echo -e "→ Installing packages"
-    fi
-
-    R -s -e "install.packages(unname(installed.packages(lib.loc = '~/Library/R/arm64/$R_CUT/library/')[, 'Package']), lib.loc = '~/Library/R/arm64/$R_CUT_TO/library/', repos = 'cloud.r-project.org')"
-
-  else
-
-    exit 0
-  fi
-
-  unset R_CUT
-  unset R_CUT_TO
-
-  exit 0
-
-}
-
 function list() {
 
   if [[ $(uname) == "Darwin" ]]; then
@@ -1145,7 +1075,7 @@ function rcli() {
   R_VERSION=$2
   arch=$(uname -m)
 
-  if [[ $1 != "list" && $1 != "ls" && $1 != "install" && $1 != "switch" && $1 != "remove" && $1 != "migrate-pkgs" ]]; then
+  if [[ $1 != "list" && $1 != "ls" && $1 != "install" && $1 != "switch" && $1 != "remove" ]]; then
     echo -e "\033[0;31mERROR\033[0m: Unknown subcommand"
     exit 1
   fi
@@ -1204,11 +1134,6 @@ function rcli() {
   elif [[ $1 == "remove" ]]; then
     arm_avail=$(version_compare $R_VERSION 4.0.6)
     remove
-    exit 0
-
-  elif [[ $1 == "migrate-pkgs" ]]; then
-    version_to=$3
-    migrate-pkgs
     exit 0
 
   else
