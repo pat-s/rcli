@@ -435,7 +435,7 @@ function install() {
       arch=arm64
 
       if [[ $(lsb_release -si) == "Ubuntu" || $(lsb_release -si) == "Debian" ]]; then
-        if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" || $(lsb_release -sr) == "22.04" || $(lsb_release -sr) == "9" || $(lsb_release -sr) == "10" ]]; then
+        if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" || $(lsb_release -sr) == "22.04" || $(lsb_release -sr) == "9" || $(lsb_release -sr) == "10" || $(lsb_release -sr) == "11" ]]; then
 
           if [[ $RCLI_QUIET != "true" ]]; then
             echo -e "→ Downloading \033[36mhttps://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1_$arch.$file_type\033[0m"
