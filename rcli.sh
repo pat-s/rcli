@@ -419,21 +419,40 @@ function install() {
 
         codename=$(lsb_release -sr)
 
-        if [[ $RCLI_QUIET != "true" ]]; then
-          echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+        # arm64
+        if [[ $(arch) == "aarch64" ]]; then
+
+          if [[ $RCLI_QUIET != "true" ]]; then
+            echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+          fi
+
+          wget -q "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb"
+          sudo gdebi -n r-${R_VERSION}_1_amd64.deb >/dev/null
+          # sudo apt-get -y -f install
+          rm r-${R_VERSION}_1_amd64.deb
+          sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+          sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+          exit 0
+
+        elif [[ $(arch) == "x86_64" ]]; then
+
+          if [[ $RCLI_QUIET != "true" ]]; then
+            echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+          fi
+          wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
+          sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
+          sudo apt-get -y -f install
+          rm r-${R_VERSION}_1_amd64.deb
+          sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+          sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
+          exit 0
+        else
+
+          install_from_source
+
         fi
-        wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
-        sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
-        sudo apt-get -y -f install
-        rm r-${R_VERSION}_1_amd64.deb
-        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-
-        exit 0
-      else
-
-        install_from_source
-
       fi
 
     elif
