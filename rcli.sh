@@ -407,131 +407,70 @@ function install() {
 
   if [[ $(uname) == "Linux" ]]; then
 
-    if [[ $(lsb_release -si) == "Ubuntu" ]]; then
+    distro_name=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
+    codename=$(lsb_release -sr)
+    arch=$(arch)
 
-      if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" || $(lsb_release -sr) == "22.04" ]]; then
+    if [[ $(lsb_release -si) == "Rocky" || $(lsb_release -si) == "CentOS" ]]; then
+      file_type=$($file_type)
+      install_cmd=$(sudo yum -y install R-${R_VERSION}-1-1.x86_64$file_type >/dev/null)
+      rm_cmd=$(rm R-${R_VERSION}-1-1.x86_64$file_type)
+      codename=$(lsb_release -sr | cut -c 1)
+    elif [[ $(lsb_release -si) == "Ubuntu" || $(lsb_release -si) == "Debian" ]]; then
+      file_type=$($file_type)
+      install_cmd=$(sudo gdebi -n R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1$arch$file_type >/dev/null)
+      rm_cmd=$(rm r-${R_VERSION}_1_amd64$file_type)
+    fi
 
-        if [[ $R_VERSION =~ dev ]]; then
-          R_VERSION="devel"
-          install_from_source
-          exit 0
-        fi
+    if [[ $arch == "aarch64" ]]; then
+      arch=arm64
+    fi
 
-        codename=$(lsb_release -sr)
-
-        # arm64
-        if [[ $(arch) == "aarch64" ]]; then
+    # arm64
+    if [[ $(arch) == "aarch64" ]]; then
+      if [[ $(lsb_release -si) == "Ubuntu" || $(lsb_release -si) == "Debian" ]]; then
+        if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" || $(lsb_release -sr) == "22.04" || $(lsb_release -sr) == "9" || $(lsb_release -sr) == "10" ]]; then
 
           if [[ $RCLI_QUIET != "true" ]]; then
-            echo -e "→ Downloading \033[36mhttps://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb\033[0m"
+            echo -e "→ Downloading \033[36mhttps://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1$arch$file_type\033[0m"
           fi
 
-          if curl --output /dev/null --silent --head --fail "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb"; then
+          if curl --output /dev/null --silent --head --fail "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1$arch$file_type"; then
             :
           else
-             echo "Unfortunately no R binary exists for R version \033[36m$R_VERSION\033[0m. The oldest binary available is for R version \033[36m3.3.3\033[0m. Trying to install from source. Note that this may likely fail if the required system libs are not available. A list of required system libs is available at \033[36mhttps://github.com/pat-s/rcli/blob/main/docker/ubuntu20.04/Dockerfile\033[0m."
-             install_from_source
+            echo "Unfortunately no R binary exists for R version \033[36m$R_VERSION\033[0m. The oldest binary available is for R version \033[36m3.3.3\033[0m. Trying to install from source. Note that this may likely fail if the required system libs are not available. A list of required system libs is available at \033[36mhttps://github.com/pat-s/rcli/blob/main/docker/ubuntu20.04/Dockerfile\033[0m."
+            install_from_source
           fi
-          wget -q "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb"
-          sudo gdebi -n R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb >/dev/null
-          rm R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb
-          sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-          sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-
-          exit 0
-
-        elif [[ $(arch) == "x86_64" ]]; then
-
-          if [[ $RCLI_QUIET != "true" ]]; then
-            echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
-          fi
-          wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
-          sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
-          sudo apt-get -y -f install
-          rm r-${R_VERSION}_1_amd64.deb
+          wget -q "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1$arch$file_type"
+          sudo gdebi -n R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1$arch$file_type >/dev/null
+          rm R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1$arch$file_type
           sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
           sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
           exit 0
         else
-
           install_from_source
-
         fi
       fi
 
-    elif
+    elif [[ $(arch) == "x86_64" ]]; then
 
-      [[ $(lsb_release -si) == "Debian" ]]
-    then
+      if [[ $(lsb_release -si) == "Ubuntu" || $(lsb_release -si) == "Debian" || $(lsb_release -si) == "Rocky" || $(lsb_release -si) == "CentOS" ]]; then
 
-      if [[ $R_VERSION =~ dev ]]; then
-        R_VERSION="devel"
-        install_from_source
+        if [[ $RCLI_QUIET != "true" ]]; then
+          echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/${distro_name}-${codename//./}/pkgs/r-${R_VERSION}_1_amd64$file_type\033[0m"
+        fi
+        wget -q "https://cdn.rstudio.com/r/${distro_name}-${codename//./}/pkgs/r-${R_VERSION}_1_amd64$file_type"
+        $install_cmd
+        $rm_cmd
+        sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
+        sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
+
         exit 0
-      fi
-
-      codename=$(lsb_release -sr)
-
-      if [[ $RCLI_QUIET != "true" ]]; then
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/debian-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
-      fi
-      wget -q "https://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb"
-      sudo dpkg -i r-${R_VERSION}_1_amd64.deb >/dev/null
-      rm r-${R_VERSION}_1_amd64.deb
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-
-      exit 0
-
-    elif [[ $(lsb_release -si) == "Rocky" ]]; then
-
-      if [[ $R_VERSION =~ dev ]]; then
-        R_VERSION="devel"
+      else
         install_from_source
-        exit 0
       fi
-
-      codename=$(lsb_release -sr | cut -c 1)
-
-      if [[ $RCLI_QUIET != "true" ]]; then
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
-      fi
-      wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
-      sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
-      rm R-${R_VERSION}-1-1.x86_64.rpm
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-
-      exit 0
-
-    elif [[ $(lsb_release -si) == "CentOS" ]]; then
-
-      if [[ $R_VERSION =~ dev ]]; then
-        R_VERSION="devel"
-        install_from_source
-        exit 0
-      fi
-
-      codename=$(lsb_release -sr | cut -c 1)
-
-      if [[ $RCLI_QUIET != "true" ]]; then
-        echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm\033[0m"
-      fi
-      wget -q "https://cdn.rstudio.com/r/centos-${codename//./}/pkgs/R-${R_VERSION}-1-1.x86_64.rpm"
-      sudo yum -y install R-${R_VERSION}-1-1.x86_64.rpm >/dev/null
-      rm R-${R_VERSION}-1-1.x86_64.rpm
-      sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
-      sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
-
-      exit 0
-
-    else
-
-      install_from_source
-
     fi
-
   fi
 
   if [[ $ARG_ARCH == "x86_64" ]]; then
