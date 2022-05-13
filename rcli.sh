@@ -411,13 +411,16 @@ function install() {
     codename=$(lsb_release -sr)
     arch=$(arch)
 
-    if [[ $(lsb_release -si) == "Rocky" || $(lsb_release -si) == "CentOS" ]]; then
-      file_type=$($file_type)
+    if [[ $(lsb_release -si) == "Rocky" || $(lsb_release -si) == "CentOS" || $(lsb_release -si) == "RedHatEnterprise" ]]; then
+      if [[ $(lsb_release -si) == "RedHatEnterprise" ]]; then
+        distro_name=centos
+      fi
+      file_type=$(.rpm)
       install_cmd=$(sudo yum -y install R-${R_VERSION}-1-1.x86_64$file_type >/dev/null)
       rm_cmd=$(rm R-${R_VERSION}-1-1.x86_64$file_type)
       codename=$(lsb_release -sr | cut -c 1)
     elif [[ $(lsb_release -si) == "Ubuntu" || $(lsb_release -si) == "Debian" ]]; then
-      file_type=$($file_type)
+      file_type=$(.deb)
       install_cmd=$(sudo gdebi -n R-rstudio-${distro_name}-${codename//./}-${R_VERSION}_1$arch$file_type >/dev/null)
       rm_cmd=$(rm r-${R_VERSION}_1_amd64$file_type)
     fi
