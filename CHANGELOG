@@ -1,4 +1,11 @@
 
+rcli (0.9.0-1) unstable; urgency=medium
+
+  * Added support for Linux-arm-binaries via `r-hub/R` for Ubuntu and Debian
+  * Source installations are now built under `/tmp`
+  * Use `gdebi` instead of `dpkg` on Ubuntu/Debian for easier dependency resolution
+  * Add support for RHEL
+
 rcli (0.8.2-1) unstable; urgency=medium
 
   * `Rscript` now works as intended. Beforehand, `Rscript` crashed as it was not able to find the corresponding `R` executable.
