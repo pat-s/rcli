@@ -31,3 +31,5 @@ rcli switch release
 **Full documentation**: https://rcli.pat-s.me
 
 Announcement blog post: https://pat-s.me/announcing-rcli/
+
+An alternative to `rcli` is [r-lib/rim](https://github.com/r-lib/rim).
