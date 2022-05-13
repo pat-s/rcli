@@ -423,13 +423,18 @@ function install() {
         if [[ $(arch) == "aarch64" ]]; then
 
           if [[ $RCLI_QUIET != "true" ]]; then
-            echo -e "→ Downloading \033[36mhttps://cdn.rstudio.com/r/ubuntu-${codename//./}/pkgs/r-${R_VERSION}_1_amd64.deb\033[0m"
+            echo -e "→ Downloading \033[36mhttps://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb\033[0m"
           fi
 
+          if curl --output /dev/null --silent --head --fail "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb"; then
+            :
+          else
+             echo "Unfortunately no R binary exists for R version \033[36m$R_VERSION\033[0m. The oldest binary available is for R version \033[36m3.3.3\033[0m. Trying to install from source. Note that this may likely fail if the required system libs are not available. A list of required system libs is available at \033[36mhttps://github.com/pat-s/rcli/blob/main/docker/ubuntu20.04/Dockerfile\033[0m."
+             install_from_source
+          fi
           wget -q "https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb"
-          sudo gdebi -n r-${R_VERSION}_1_amd64.deb >/dev/null
-          # sudo apt-get -y -f install
-          rm r-${R_VERSION}_1_amd64.deb
+          sudo gdebi -n R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb >/dev/null
+          rm R-rstudio-ubuntu-${codename//./}-${R_VERSION}_1_arm64.deb
           sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
           sudo ln -sf /opt/R/$R_VERSION/bin/Rscript /usr/local/bin/Rscript
 
@@ -912,7 +917,8 @@ function install_from_source() {
 
     # function
     get_dev_version_string
-    curl -s -o R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+    curl -s -o /tmp/R-$R_VERSION.tar.gz R-$R_VERSION.tar.gz https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+    cd /tmp
     tar -xf R-${R_VERSION}.tar.gz
     cd R-devel
   else
@@ -920,7 +926,8 @@ function install_from_source() {
     if [[ $RCLI_QUIET != "true" ]]; then
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz\033[0m"
     fi
-    wget -q "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+    curl -s -o /tmp/R-$R_VERSION.tar.gz "https://cran.r-project.org/src/base/R-$R_BRANCH/R-$R_VERSION.tar.gz"
+    cd /tmp
     tar -xf R-${R_VERSION}.tar.gz
     cd R-${R_VERSION}
   fi
@@ -956,6 +963,7 @@ function install_from_source() {
 
   cd ../
   rm R-${R_VERSION}.tar.gz
+  rm -rf R-$R_VERSION
 
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/local/bin/R
   sudo ln -sf /opt/R/$R_VERSION/bin/R /usr/bin/R
