@@ -411,8 +411,6 @@ function install() {
     codename=$(lsb_release -sr)
     arch=$(arch)
 
-    # echo -e "ARCH1: $arch"
-
     if [[ $(lsb_release -si) == "Rocky" || $(lsb_release -si) == "CentOS" || $(lsb_release -si) == "RedHatEnterprise" ]]; then
       if [[ $(lsb_release -si) == "RedHatEnterprise" || $(lsb_release -si) == "Rocky" ]]; then
         distro_name=centos
@@ -433,12 +431,6 @@ function install() {
       rm_cmd="rm r-${R_VERSION}_1_${arch}.${file_type}"
     fi
 
-    # echo -e "DEBUG DOWNLOAD $dl_cmd"
-    # echo -e "DEBUG INSTALL $install_cmd"
-    # echo -e "DEBUG RM $rm_cmd"
-
-    # echo -e "ARCH2: $arch"
-    # arm64
     if [[ $arch == "aarch64" ]]; then
       arch=arm64
 
