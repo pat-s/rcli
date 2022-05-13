@@ -409,7 +409,7 @@ function install() {
 
     if [[ $(lsb_release -si) == "Ubuntu" ]]; then
 
-      if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" ]]; then
+      if [[ $(lsb_release -sr) == "18.04" || $(lsb_release -sr) == "20.04" || $(lsb_release -sr) == "22.04" ]]; then
 
         if [[ $R_VERSION =~ dev ]]; then
           R_VERSION="devel"
