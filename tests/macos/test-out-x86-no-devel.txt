@@ -14,7 +14,7 @@ DEBUG: current R: 4.0.5
 DEBUG: R_VERSION: 4.1.2
 DEBUG: current arch: x86_64
 DEBUG: Switching: -> x86
-[1] "R Under development"
+[0;31mERROR[0m: The requested URL (https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg) returned a 404 response. This indicates that the latest build failed. Check [36mhttps://mac.r-project.org/[0m for the latest build status.
 → Removing R version [36m4.0.5[0m from path [36m/opt/R/4.0.5[0m
 [0;31mERROR[0m: No R installation found at path [36m/opt/R/4.0.5[0m. Is [36m4.0.5 (x86_64)[0m really installed?
 Installed R versions:
