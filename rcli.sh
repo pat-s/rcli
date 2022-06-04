@@ -586,6 +586,14 @@ function install() {
     backup_syslib
 
     if [[ $R_VERSION =~ dev ]]; then
+      status=$(curl --head --silent https://mac.r-project.org/big-sur/R-devel/R-devel.pkg | head -n 1)
+      if echo "$status" | grep -q 404; then
+        echo -e "\033[0;31mERROR\033[0m: The requested URL (https://mac.r-project.org/big-sur/R-devel/R-devel.pkg) returned a 404 response. This indicates that the latest build failed. Check \033[36mhttps://mac.r-project.org/\033[0m for the latest build status."
+        exit 0
+      else
+        :
+      fi
+
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/big-sur/R-devel/R-devel.pkg\033[0m"
       fi
@@ -647,6 +655,14 @@ function install() {
     fi
 
     if [[ $R_VERSION =~ dev ]]; then
+      status=$(curl --head --silent https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg | head -n 1)
+      if echo "$status" | grep -q 404; then
+        echo -e "\033[0;31mERROR\033[0m: The requested URL (https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg) returned a 404 response. This indicates that the latest build failed. Check \033[36mhttps://mac.r-project.org/\033[0m for the latest build status."
+        exit 0
+      else
+        :
+      fi
+
       if [[ $RCLI_QUIET != "true" ]]; then
         echo -e "→ Downloading \033[36mhttps://mac.r-project.org/high-sierra/R-devel/R-devel.pkg\033[0m"
       fi
@@ -855,6 +871,13 @@ function install_from_source() {
   fi
 
   if [[ $R_VERSION =~ dev ]]; then
+    status=$(curl --head --silent https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz | head -n 1)
+    if echo "$status" | grep -q 404; then
+      echo -e "\033[0;31mERROR\033[0m: The requested URL (https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz) returned a 404 response, indicating that the latest build failed. Check \033[36mhttps://cran.r-project.org/src/base-prerelease\033[0m for the latest build status."
+      exit 0
+    else
+      :
+    fi
     R_VERSION="devel"
     if [[ $RCLI_QUIET != "true" ]]; then
       echo -e "→ Downloading \033[36mhttps://cran.r-project.org/src/base-prerelease/R-devel.tar.gz\033[0m"

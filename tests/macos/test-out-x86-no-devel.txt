@@ -1,0 +1,21 @@
+\033[0;31mERROR\033[0m: Passing an R version (or alias) is required.
+[1] "R version 4.1.2 (2021-11-01)"
+[0;31mERROR[0m: Passing 'arm' in the version specifier is not needed/allowed. If an arm build exists for the requested version, it is selected by default on macOS arm machines. You only need to pass the [36m--arch x86_64[0m flag if you want to explicitly install/switch to the [36mx86_64[0m version instead of the arm build. This only applies to cases in which builds for both architectures are available (which only applies to R >= 4.1.0).
+ℹ Backing up current system library ([36m/opt/R/4.1.2/Resources/library[0m) to [36m/opt/R//Resources/library[0m as no existing installation of R [36m4.1.2[0m installed via [36mrcli[0m was found. This is a one-time action.
+✓ Finished backing up system library.
+R 4.1.2 is already installed - you only need to call [36mrcli switch 4.1.2[0m to use it.
+[1] "R version 4.1.2 (2021-11-01)"
+[1] "R version 4.0.5 (2021-03-31)"
+DEBUG: current R: 4.1.2
+DEBUG: R_VERSION: 4.0.5
+DEBUG: current arch: x86_64
+DEBUG: Switching: -> x86
+DEBUG: current R: 4.0.5
+DEBUG: R_VERSION: 4.1.2
+DEBUG: current arch: x86_64
+DEBUG: Switching: -> x86
+[0;31mERROR[0m: The requested URL (https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg) returned a 404 response. This indicates that the latest build failed. Check [36mhttps://mac.r-project.org/[0m for the latest build status.
+→ Removing R version [36m4.0.5[0m from path [36m/opt/R/4.0.5[0m
+[0;31mERROR[0m: No R installation found at path [36m/opt/R/4.0.5[0m. Is [36m4.0.5 (x86_64)[0m really installed?
+Installed R versions:
+- 4.1.2
