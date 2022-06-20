@@ -45,7 +45,7 @@ jobs:
 
       - name: Get latest tag version
         id: latest_tag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        uses: "WyriHaximus/github-action-get-previous-tag@v1.1"
 
       - name: Get sha 256 of macOS version
         id: shasum_mac_os
