@@ -698,7 +698,6 @@ function install() {
       # function
       get_dev_version_string
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
-      echo -e "$R_VERSION"
       curl -s https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}.pkg
     else
       if [[ $RCLI_QUIET != "true" ]]; then
@@ -708,7 +707,6 @@ function install() {
     fi
 
     currentR=$(echo $(R --version) | cut -c 11-15)
-    echo "FOO"
     # detect if current R is r-devel
     if [[ $currentR == "velop" ]]; then
       currentR=$(echo $(R -s -q -e 'paste(R.version[["major"]], R.version[["minor"]], sep = ".")') | cut -c 6-10)

@@ -48,55 +48,56 @@ echo -e "#### Install 4.0.5"
 
 echo -e "#### Switching 4.0.5 -> 4.1.2"
 ./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
-R -q -s -e "install.packages('gam', repos = 'https://cran.us.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
+R -q -s -e "install.packages('gam', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
 
 echo -e "#### Switching 4.1.2 -> 4.0.5"
 ./rcli.sh switch 4.0.5 --debug >>/tmp/test-results/out.txt
-R -q -s -e "install.packages('cli', repos = 'https://cran.us.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
+R -q -s -e "install.packages('cli', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
 
 echo -e "#### Switching 4.0.5 -> 4.1.2"
 ./rcli.sh switch 4.1.2 --debug >>/tmp/test-results/out.txt
 R -q -s -e "library('gam')" >>/tmp/test-results/out.txt
 
 echo -e "#### Installing R devel"
-./rcli.sh install devel >>/tmp/test-results/out.txt
+./rcli.sh install devel --debug >>/tmp/test-results/out.txt
 if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
 	R -q -s -e "substr(R.version.string, 1, 19)" >>/tmp/test-results/out.txt
+        R -q -s -e "install.packages('cli', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
 fi
 
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
-./rcli.sh switch 4.0.5 >>/tmp/test-results/out.txt
+./rcli.sh switch --debug 4.0.5 >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 
-if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
-	:
-else
-	echo -e "#### Switching 4.0.5 -> devel"
-	./rcli.sh switch dev >>/tmp/test-results/out.txt
-fi
+# if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
+# 	:
+# else
+# 	echo -e "#### Switching 4.0.5 -> devel"
+# 	./rcli.sh switch dev >>/tmp/test-results/out.txt
+# fi
 
-echo -e "#### Switching devel -> 4.1.2"
-./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
+# echo -e "#### Switching devel -> 4.1.2"
+# ./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
 
-# not saving in output as the value would change constantly
-# sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
-if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
-	:
-else
-	echo -e "#### Remove R devel"
-	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
-fi
+# # not saving in output as the value would change constantly
+# # sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
+# if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
+# 	:
+# else
+# 	echo -e "#### Remove R devel"
+# 	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
+# fi
 
-echo -e "#### Remove R 4.0.5"
-./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
+# echo -e "#### Remove R 4.0.5"
+# ./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
 
-echo -e "#### Remove R 4.0.5 again (and expect error)"
-./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
+# echo -e "#### Remove R 4.0.5 again (and expect error)"
+# ./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
 
-echo -e "#### List installed R versions"
-./rcli.sh ls >>/tmp/test-results/out.txt
+# echo -e "#### List installed R versions"
+# ./rcli.sh ls >>/tmp/test-results/out.txt
 
 # not saving in output as the value would change constantly
 echo -e "#### Install rel"
