@@ -68,7 +68,7 @@ else
 fi
 
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
-./rcli.sh switch --debug 4.0.5 >>/tmp/test-results/out.txt
+./rcli.sh switch 4.0.5 --debug >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 
 # if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
