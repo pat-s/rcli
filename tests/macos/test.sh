@@ -64,7 +64,7 @@ if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
 	R -q -s -e "substr(R.version.string, 1, 19)" >>/tmp/test-results/out.txt
-        R -q -s -e "install.packages('cli', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
+        R -q -s -e "install.packages('cli', repos = 'https://cloud.r-project.org', quiet = TRUE)" >/dev/null
 fi
 
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
