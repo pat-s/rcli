@@ -70,18 +70,24 @@ fi
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
 ./rcli.sh switch 4.0.5 --debug && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
+ls -ld /usr/local/bin/R
+which R
 
 if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
 	echo -e "#### Switching 4.0.5 -> devel"
 	./rcli.sh switch dev && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
+	ls -ld /usr/local/bin/R
+	which R
 fi
 
 echo -e "#### Switching devel or 4.0.5 -> 4.1.2"
 ./rcli.sh switch 4.1.2 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 R_VERSION=$(R -q -s -e "R.version.string")
 echo -e "#### Switching devel or 4.0.5 -> 4.1.2: $R_VERSION"
+ls -ld /usr/local/bin/R
+which R
 
 # not saving in output as the value would change constantly
 # sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
