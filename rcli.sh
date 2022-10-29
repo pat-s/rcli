@@ -600,6 +600,22 @@ function install() {
 
       # function
       get_dev_version_string
+
+      # recompute TARGET_R_* vars after computing R-devel version. otherwise TARGET_R_VERSION_ARCH will contain dev-<arch> instead of an R version
+      if [[ $(arch) == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+      if [[ $(arch) == "arm64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION-arm64
+        TARGET_R_CUT_ARCH=$R_CUT-arm64
+      fi
+      # override with user preference
+      if [[ $ARG_ARCH == "x86_64" ]]; then
+        TARGET_R_VERSION_ARCH=$R_VERSION
+        TARGET_R_CUT_ARCH=$R_CUT
+      fi
+
       R_CUT=$(echo $R_VERSION | cut -c 1-3)
       curl -s https://mac.r-project.org/big-sur/R-devel/R-devel.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     else
@@ -609,8 +625,20 @@ function install() {
       curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-${R_VERSION}-arm64.pkg -o /tmp/R-${R_VERSION}-arm64.pkg
     fi
 
-    sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
-    rm /tmp/R-${R_VERSION}-arm64.pkg
+    # sudo installer -pkg /tmp/R-${R_VERSION}-arm64.pkg -target / >/dev/null
+    # rm /tmp/R-${R_VERSION}-arm64.pkg
+
+    # export R_VERSION=4.3.0
+    # export R_CUT=4.3
+    # export TARGET_R_VERSION_ARCH=4.3.0-arm64
+    # curl -s https://cran.r-project.org/bin/macosx/big-sur-arm64/base/R-4.2.1-arm64.pkg -o /tmp/R-4.2.1-arm64.pkg
+    # sudo installer -pkg /tmp/R-4.2.1-arm64.pkg -target / >/dev/null
+
+    # echo -e "DEBUG: R_VERSION: $R_VERSION"
+    # echo -e "DEBUG: R_VERSION: $R_CUT"
+    echo -e "DEBUG: TARGET_R_VERSION_ARCH: $TARGET_R_VERSION_ARCH"
+
+    # break
 
     sudo mkdir -p /opt/R/$R_VERSION-arm64/
     sudo cp -fR /Library/Frameworks/R.framework/Versions/$R_CUT-arm64/* /opt/R/$R_VERSION-arm64/ 2>/dev/null
