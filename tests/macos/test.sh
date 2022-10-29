@@ -68,38 +68,36 @@ else
 fi
 
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
-./rcli.sh switch 4.0.5 --debug >>/tmp/test-results/out.txt
+./rcli.sh switch 4.0.5 --debug && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 
-# foo
+if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
+	:
+else
+	echo -e "#### Switching 4.0.5 -> devel"
+	./rcli.sh switch dev && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
+fi
 
-# if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
-# 	:
-# else
-# 	echo -e "#### Switching 4.0.5 -> devel"
-# 	./rcli.sh switch dev >>/tmp/test-results/out.txt
-# fi
+echo -e "#### Switching devel or 4.0.5 -> 4.1.2"
+./rcli.sh switch 4.1.2 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 
-# echo -e "#### Switching devel -> 4.1.2"
-# ./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
+# not saving in output as the value would change constantly
+# sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
+if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
+	:
+else
+	echo -e "#### Remove R devel"
+	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
+fi
 
-# # not saving in output as the value would change constantly
-# # sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
-# if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
-# 	:
-# else
-# 	echo -e "#### Remove R devel"
-# 	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
-# fi
+echo -e "#### Remove R 4.0.5"
+./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
 
-# echo -e "#### Remove R 4.0.5"
-# ./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
+echo -e "#### Remove R 4.0.5 again (and expect error)"
+./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
 
-# echo -e "#### Remove R 4.0.5 again (and expect error)"
-# ./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
-
-# echo -e "#### List installed R versions"
-# ./rcli.sh ls >>/tmp/test-results/out.txt
+echo -e "#### List installed R versions"
+./rcli.sh ls >>/tmp/test-results/out.txt
 
 # not saving in output as the value would change constantly
 echo -e "#### Install rel"
