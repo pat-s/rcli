@@ -1,3 +1,8 @@
+
+rcli (0.9.2-1) unstable; urgency=medium
+
+  * Fixed an issue with installing R-devel: Recompute `TARGET_R_VERSION_ARCH` after determining R-devel version
+
 rcli (0.9.1-1) unstable; urgency=medium
 
   * Check availability of devel builds before downloading (#47)
