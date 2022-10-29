@@ -51,15 +51,15 @@ echo -e "#### Switching 4.0.5 -> 4.1.2"
 R -q -s -e "install.packages('gam', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
 
 echo -e "#### Switching 4.1.2 -> 4.0.5"
-./rcli.sh switch 4.0.5 --debug >>/tmp/test-results/out.txt
+./rcli.sh switch 4.0.5 >>/tmp/test-results/out.txt
 R -q -s -e "install.packages('cli', repos = 'https://cloud.r-project.org', quiet = TRUE, type = 'binary')" >/dev/null
 
 echo -e "#### Switching 4.0.5 -> 4.1.2"
-./rcli.sh switch 4.1.2 --debug >>/tmp/test-results/out.txt
+./rcli.sh switch 4.1.2 >>/tmp/test-results/out.txt
 R -q -s -e "library('gam')" >>/tmp/test-results/out.txt
 
 echo -e "#### Installing R devel"
-./rcli.sh install devel --debug >>/tmp/test-results/out.txt
+./rcli.sh install devel >>/tmp/test-results/out.txt
 if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
@@ -68,7 +68,7 @@ else
 fi
 
 echo -e "#### Switching devel or 4.1.2 -> 4.0.5"
-./rcli.sh switch 4.0.5 --debug && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
+./rcli.sh switch 4.0.5 && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 R -q -s -e "library('cli')" >>/tmp/test-results/out.txt
 ls -ld /usr/local/bin/R
 which R
@@ -94,13 +94,13 @@ which R
 if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
+
+	echo -e "#### Switching devel -> 4.0.5"
+	./rcli.sh switch 4.0.5 >>/tmp/test-results/out.txt
+
 	echo -e "#### Remove R devel"
 	ls -ld /usr/local/bin/R
-	# ./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
-	./rcli.sh remove dev
-	ls -ld /usr/local/bin/R
-	OUTPUT=$(R -q -s -e "R.version.string")
-	echo -e "#### Remove R devel: $OUTPUT"
+	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
 fi
 
 echo -e "#### Remove R 4.0.5"
