@@ -83,16 +83,19 @@ echo -e "#### Switching devel or 4.0.5 -> 4.1.2"
 R_VERSION=$(R -q -s -e "R.version.string")
 echo -e "#### Switching devel or 4.0.5 -> 4.1.2: $R_VERSION"
 
-# # not saving in output as the value would change constantly
-# # sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
-# if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
-# 	:
-# else
-# 	echo -e "#### Remove R devel"
-# 	./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
-# 	OUTPUT=$(R -q -s -e "R.version.string")
-# 	echo -e "#### Remove R devel: $OUTPUT"
-# fi
+# not saving in output as the value would change constantly
+# sending output to /dev/null as the r-devel no-avail check would print to stdout otherwise
+if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
+	:
+else
+	echo -e "#### Remove R devel"
+	ls -ld /usr/local/bin/R
+	# ./rcli.sh remove dev >>/tmp/test-results/out-no-track.txt
+	./rcli.sh remove dev
+	ls -ld /usr/local/bin/R
+	OUTPUT=$(R -q -s -e "R.version.string")
+	echo -e "#### Remove R devel: $OUTPUT"
+fi
 
 echo -e "#### Remove R 4.0.5"
 ./rcli.sh remove 4.0.5 >>/tmp/test-results/out.txt
