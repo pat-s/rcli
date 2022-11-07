@@ -77,7 +77,7 @@ if [[ $(./rcli.sh install devel) =~ "ERROR" ]]; then
 	:
 else
 	echo -e "#### Switching 4.0.5 -> devel"
-	./rcli.sh switch dev && R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
+	./rcli.sh switch dev && R -q -s -e "R.version.string" | cut -c 1-20 >>/tmp/test-results/out.txt
 	ls -ld /usr/local/bin/R
 	which R
 fi
