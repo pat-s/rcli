@@ -1,4 +1,4 @@
-FROM ubuntu:21.10
+FROM ubuntu:22.10
 
 RUN export DEBIAN_FRONTEND=noninteractive && apt update -y && \
 	apt install -y --no-install-recommends ruby ruby-dev && \

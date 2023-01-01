@@ -48,12 +48,12 @@ jobs:
           push: true
           tags: pats22/ubuntu-20.04-rcli:latest
 
-      - name: Build and push Ubuntu 21.10 Image
+      - name: Build and push Ubuntu 22.10 Image
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:docker/ubuntu21.10"
+          context: "{{defaultContext}}:docker/ubuntu22.10"
           push: true
-          tags: pats22/ubuntu-21.10-rcli:latest
+          tags: pats22/ubuntu-22.10-rcli:latest
 
       - name: Build and push Fedora Image
         uses: docker/build-push-action@v3

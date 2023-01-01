@@ -10,4 +10,4 @@ R -q -s -e "R.version.string" >>/tmp/test-results/out.txt
 
 ./rcli.sh ls >>/tmp/test-results/out.txt
 
-if [[ $(diff tests/ubuntu-21.10/test-out.txt /tmp/test-results/out.txt) == "" ]]; then exit 0; else exit 1; fi
+if [[ $(diff tests/ubuntu-22.10/test-out.txt /tmp/test-results/out.txt) == "" ]]; then exit 0; else exit 1; fi
