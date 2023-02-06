@@ -28,35 +28,35 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push rockylinux8 Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:docker/rockylinux8"
           push: true
           tags: pats22/rockylinux8-rcli:latest
 
       - name: Build and push Centos7 Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:docker/centos7"
           push: true
           tags: pats22/centos7-rcli:latest
 
       - name: Build and push Ubuntu 20.04 Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:docker/ubuntu20.04"
           push: true
           tags: pats22/ubuntu-20.04-rcli:latest
 
       - name: Build and push Ubuntu 22.10 Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:docker/ubuntu22.10"
           push: true
           tags: pats22/ubuntu-22.10-rcli:latest
 
       - name: Build and push Fedora Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:docker/fedora"
           push: true
