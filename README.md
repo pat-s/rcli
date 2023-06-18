@@ -1,3 +1,10 @@
+# ! Archived !
+
+I don't have enough time and power to maintain this project.
+Please use [https://github.com/r-lib/rig](https://github.com/r-lib/rig) instead for a convenient way to install and switch between R versions.
+
+---
+
 [![macOS-x86](https://github.com/pat-s/rcli/actions/workflows/main.yml/badge.svg)](https://github.com/pat-s/rcli/actions/workflows/main.yml)
 [![CircleCI](https://circleci.com/gh/pat-s/rcli/tree/main.svg?style=svg)](https://circleci.com/gh/pat-s/rcli/tree/main) <img src="assets/logo.png" align="right" width = "250" />
 
